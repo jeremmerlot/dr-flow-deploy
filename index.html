@@ -306,6 +306,10 @@
           <label>Industry‑wide total delayed trips (all ticket types) <b id="lbl-industryTotal">3,900,000</b></label>
           <input type="range" id="slider-industryTotal" min="2000000" max="6000000" value="3900000" step="50000">
         </div>
+        <div class="field">
+          <label>Non‑flexible tickets already covered <b id="lbl-nonFlexCoverage">80%</b></label>
+          <input type="range" id="slider-nonFlexCoverage" min="0" max="100" value="80" step="1">
+        </div>
       </details>
 
       <div class="btnrow">
@@ -328,7 +332,7 @@
       <div class="coverage-item">
         <div class="label">Total delayed trips covered</div>
         <div class="value mono" id="cov-industry">18.7%</div>
-        <div class="sub-label">of all delayed trips, industry‑wide</div>
+        <div class="sub-label" id="cov-industry-sub">of all delayed trips, industry‑wide</div>
       </div>
     </div>
 
@@ -450,7 +454,7 @@ const BASE = {
   total: 2200000, guest: 0.25, locationApp: 0.67,
   bookedApp: 0.55, bookedDenied: 0.55,
   swapAppAnother: 0.0, confirmDeniedBooked: 0.10, swapDeniedAnother: 0.25,
-  industryTotal: 3900000
+  industryTotal: 3900000, nonFlexCoverage: 0.80
 };
 
 const INIT1_TARGET = { swapAppAnother: 0.80 };
@@ -472,6 +476,7 @@ const els = {
   bookedApp: document.getElementById('slider-bookedApp'),
   bookedDenied: document.getElementById('slider-bookedDenied'),
   industryTotal: document.getElementById('slider-industryTotal'),
+  nonFlexCoverage: document.getElementById('slider-nonFlexCoverage'),
   reset: document.getElementById('btn-reset'),
 };
 
@@ -533,7 +538,7 @@ function readParams(){
 function set(id, text){ document.getElementById(id).textContent = text; }
 
 function render(){
-  [els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal].forEach(fillTrack);
+  [els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal, els.nonFlexCoverage].forEach(fillTrack);
 
   const rawParams = readParams();
   const guestOn = els.toggle3.checked;
@@ -588,8 +593,15 @@ function render(){
 
   // coverage box
   const industryTotal = +els.industryTotal.value;
+  const nonFlexCoverage = +els.nonFlexCoverage.value / 100;
+  const nonFlexTrips = Math.max(industryTotal - S.total, 0);
+  const nonFlexCovered = nonFlexTrips * nonFlexCoverage;
+  const industryCovered = S.totalResolved + nonFlexCovered;
   set('cov-flex', pct1(S.totalResolved / S.total));
-  set('cov-industry', pct1(S.totalResolved / industryTotal));
+  set('cov-industry', pct1(industryCovered / industryTotal));
+  set('lbl-nonFlexCoverage', pct(nonFlexCoverage));
+  const industrySub = document.getElementById('cov-industry-sub');
+  if(industrySub) industrySub.textContent = 'of all delayed trips, industry‑wide (incl. ' + pct(nonFlexCoverage) + ' of ' + fmt(nonFlexTrips) + ' non‑flexible trips already covered)';
   const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
   if(flexSub) flexSub.textContent = 'of all ' + fmt(S.total) + ' delayed flexible‑ticket trips modelled';
 
@@ -660,7 +672,7 @@ els.toggle3.addEventListener('change', () => {
   render();
 });
 
-[els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal]
+[els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal, els.nonFlexCoverage]
   .forEach(el => el.addEventListener('input', render));
 
 els.reset.addEventListener('click', () => {
@@ -673,6 +685,7 @@ els.reset.addEventListener('click', () => {
   els.swapApp.value = BASE.swapAppAnother*100; els.confirmDenied.value = BASE.confirmDeniedBooked*100;
   els.swapDenied.value = BASE.swapDeniedAnother*100; els.locationApp.value = BASE.locationApp*100;
   els.industryTotal.value = BASE.industryTotal;
+  els.nonFlexCoverage.value = BASE.nonFlexCoverage * 100;
   render();
 });
 
