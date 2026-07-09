@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal Box — Flexible Ticket Scenario Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #0b1220;
+    --panel: #121b2e;
+    --panel-2: #16223a;
+    --line: #263349;
+    --text: #edeff3;
+    --muted: #8b97ac;
+    --amber: #ffb020;
+    --green: #3fbf8f;
+    --red: #e8563d;
+    --teal: #29c2d1;
+    --guest: #55627a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1200px 800px at 15% -10%, #16223a 0%, var(--ink) 55%), var(--ink);
+    color: var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.4;
+    padding: 28px 28px 60px;
+  }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; margin:0; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  header{ margin-bottom: 22px; border-bottom:1px solid var(--line); padding-bottom:18px; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color: var(--amber); margin-bottom:10px;
+  }
+  .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px var(--amber); }
+  h1{ font-size: 30px; font-weight:700; letter-spacing:-.01em; }
+  header p{ color:var(--muted); max-width:760px; margin-top:8px; font-size:14.5px; }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 360px 1fr;
+    gap: 22px;
+    align-items:start;
+  }
+  @media (max-width: 980px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  /* ---- Control panel ---- */
+  .panel{
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .panel + .panel{ margin-top:18px; }
+  .panel h2{ font-size:15px; margin-bottom:4px; }
+  .panel .sub{ color:var(--muted); font-size:12.5px; margin-bottom:14px; }
+
+  .init-card{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 14px 6px;
+    margin-bottom:14px;
+    background: var(--panel-2);
+    transition: border-color .15s ease;
+  }
+  .init-card.on{ border-color: var(--teal); }
+  .init-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .init-title{ font-size:13.5px; font-weight:600; }
+  .init-title .tag{ display:block; font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--teal); letter-spacing:.08em; text-transform:uppercase; margin-bottom:3px;}
+  .init-desc{ font-size:12px; color:var(--muted); margin:6px 0 12px; }
+
+  /* switch */
+  .switch{ position:relative; width:40px; height:22px; flex:none; }
+  .switch input{ opacity:0; width:0; height:0; position:absolute; }
+  .slider-track{
+    position:absolute; inset:0; background:#2a3650; border-radius:999px; cursor:pointer; transition:.15s;
+  }
+  .slider-track::before{
+    content:''; position:absolute; height:16px; width:16px; left:3px; top:3px;
+    background:#c9d2e3; border-radius:50%; transition:.15s;
+  }
+  input:checked + .slider-track{ background: var(--teal); }
+  input:checked + .slider-track::before{ transform: translateX(18px); background:#04222a; }
+
+  .field{ margin: 12px 0; }
+  .field:first-of-type{ margin-top:2px; }
+  .field label{ display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .field label b{ color:var(--text); font-family:'IBM Plex Mono'; font-weight:600; }
+  input[type=range]{
+    -webkit-appearance:none; width:100%; height:4px; border-radius:2px;
+    background: linear-gradient(90deg, var(--teal) 0%, var(--teal) var(--fill,50%), #2a3650 var(--fill,50%), #2a3650 100%);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:15px; height:15px; border-radius:50%;
+    background:#fff; border:3px solid var(--teal); cursor:pointer; margin-top:0;
+  }
+  input[type=range]:disabled{ opacity:.35; }
+  input[type=range]:disabled::-webkit-slider-thumb{ border-color:#5a6478; }
+
+  details{ margin-top:4px; }
+  summary{
+    cursor:pointer; font-size:12.5px; color:var(--muted); font-family:'IBM Plex Mono';
+    letter-spacing:.03em; padding:6px 0; user-select:none;
+  }
+  summary:hover{ color:var(--text); }
+  details[open] summary{ margin-bottom:6px; }
+
+  .btnrow{ display:flex; gap:8px; margin-top:6px; }
+  button.reset{
+    flex:1; background:transparent; border:1px solid var(--line); color:var(--muted);
+    font-family:'IBM Plex Mono'; font-size:11.5px; padding:8px 10px; border-radius:8px; cursor:pointer;
+    transition:.15s;
+  }
+  button.reset:hover{ border-color:var(--teal); color:var(--text); }
+
+  /* ---- Main / tree ---- */
+  .coverage-panel{
+    display:flex; align-items:stretch; gap:24px;
+    background: linear-gradient(135deg, #0f2733 0%, #122a24 100%);
+    border:1px solid var(--teal); border-radius:14px;
+    padding:20px 26px; margin-bottom:18px;
+  }
+  .coverage-item{ flex:1; }
+  .coverage-item .label{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-family:'IBM Plex Mono'; }
+  .coverage-item .value{ font-size:38px; font-weight:700; font-family:'Space Grotesk'; color:var(--teal); margin-top:6px; line-height:1.1; }
+  .coverage-item .sub-label{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .coverage-divider{ width:1px; background:var(--line); align-self:stretch; }
+  @media (max-width:600px){
+    .coverage-panel{ flex-direction:column; gap:16px; }
+    .coverage-divider{ width:100%; height:1px; }
+  }
+
+  .stat-row{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;
+  }
+  @media (max-width:760px){ .stat-row{ grid-template-columns:repeat(2,1fr);} }
+  .stat{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+  }
+  .stat .label{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-family:'IBM Plex Mono'; }
+  .stat .value{ font-size:22px; font-weight:700; font-family:'Space Grotesk'; margin-top:6px; }
+  .stat .delta{ font-size:12px; margin-top:4px; font-family:'IBM Plex Mono'; }
+  .delta.up{ color:var(--green); }
+  .delta.flat{ color:var(--muted); }
+
+  .tree-wrap{
+    background: var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding: 30px 16px 20px; overflow-x:auto;
+  }
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:18px; padding:0 4px; }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--muted); font-family:'IBM Plex Mono'; }
+  .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  /* pure-css org chart */
+  ul.tree, ul.tree ul{
+    list-style:none; margin:0; padding-top:26px; position:relative;
+    display:flex; justify-content:center;
+  }
+  ul.tree{ padding-top:0; }
+  ul.tree li{
+    position:relative; padding:26px 10px 0; text-align:center;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  ul.tree li::before, ul.tree li::after{
+    content:''; position:absolute; top:0; right:50%; width:50%; height:26px;
+    border-top:2px solid var(--line);
+  }
+  ul.tree li::after{ right:auto; left:50%; border-left:2px solid var(--line); }
+  ul.tree li:only-child::after, ul.tree li:only-child::before{ display:none; }
+  ul.tree li:only-child{ padding-top:0; }
+  ul.tree > li{ padding-top:0; }
+  ul.tree > li::before, ul.tree > li::after{ display:none; }
+  ul.tree li:first-child::before, ul.tree li:last-child::after{ border:0 none; }
+  ul.tree li:last-child::before{ border-right:2px solid var(--line); border-radius:0 6px 0 0; }
+  ul.tree li:first-child::after{ border-radius:6px 0 0 0; }
+  ul.tree ul::before{
+    content:''; position:absolute; top:0; left:50%; border-left:2px solid var(--line); width:0; height:26px;
+  }
+
+  .node{
+    display:inline-block; min-width:150px; max-width:190px;
+    background: var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:10px 12px; font-size:12px; color:var(--text);
+  }
+  .node .t{ color:var(--muted); font-size:11px; margin-bottom:6px; display:block; }
+  .node .v{ font-family:'IBM Plex Mono'; font-weight:600; font-size:14px; }
+  .node .p{ font-family:'IBM Plex Mono'; font-size:11px; color:var(--muted); margin-left:4px; }
+
+  .node.root{ border-color:var(--teal); background:#0f2733; min-width:210px; max-width:230px; }
+  .node.guest{ border-left:4px solid var(--guest); }
+  .node.loggedin{ border-left:4px solid var(--teal); }
+  .node.app{ border-left:4px solid var(--teal); }
+  .node.denied{ border-left:4px solid var(--amber); }
+  .node.neutral{ border-left:4px solid var(--amber); }
+  .node.resolved{ border-left:4px solid var(--green); background:#0f2a22; }
+  .node.noaction{ border-left:4px solid var(--red); background:#2a1712; }
+  .node.excluded{ border-left:4px solid var(--guest); opacity:.75; }
+
+  .foot-note{ margin-top:18px; font-size:12px; color:var(--muted); padding:0 4px; }
+  .foot-note a{ color:var(--teal); }
+
+  .compare{
+    margin-top:20px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px;
+  }
+  .compare h3{ font-size:14px; margin-bottom:2px; }
+  .compare .sub{ color:var(--muted); font-size:12px; margin-bottom:16px; }
+  .bar-row{ margin-bottom:14px; }
+  .bar-row .bar-label{ display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px; }
+  .bar-row .bar-label .name{ color:var(--text); }
+  .bar-row .bar-label .nums{ font-family:'IBM Plex Mono'; color:var(--muted); }
+  .bar-track{ height:10px; border-radius:6px; background:#1c2740; position:relative; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:6px; position:relative; }
+  .bar-fill.base{ background:#4a5570; }
+  .bar-fill.scenario{ background: linear-gradient(90deg,var(--teal),var(--green)); }
+  .bar-track.stacked .bar-fill{ position:absolute; top:0; left:0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow"><span class="dot"></span>Flexible ticket delay journeys · scenario planner</div>
+  <h1>Signal Box</h1>
+  <p>Play with Initiative 1 (Auto‑Train Swap × Auto‑FMT) and Initiative 2 (location permission uplift) to see how they reshape the 2.2m delayed flexible‑ticket trips below — and how many more become automatically Delay‑Repay eligible.</p>
+</header>
+
+<div class="layout">
+
+  <!-- CONTROLS -->
+  <div class="controls">
+
+    <div class="panel">
+      <h2>Scenario controls</h2>
+      <div class="sub">Toggle each initiative on, then drag its sliders to test different levels of success.</div>
+
+      <div class="init-card" id="card-init1">
+        <div class="init-head">
+          <div class="init-title"><span class="tag">Initiative 1</span>Auto‑Train Swap × Auto‑FMT</div>
+          <label class="switch"><input type="checkbox" id="toggle-init1"><span class="slider-track"></span></label>
+        </div>
+        <div class="init-desc">Auto‑detects the actual train a flexible‑ticket holder is on and swaps it without manual input. Only viable where location is already known — i.e. the "While using app" branch — so it does not change the Denied‑location segments below.</div>
+
+        <div class="field">
+          <label>Auto Train‑Swap rate — "While using app" + another train <b id="lbl-swapApp">0%</b></label>
+          <input type="range" id="slider-swapAppAnother" min="0" max="100" value="0" step="1">
+        </div>
+      </div>
+
+      <div class="init-card" id="card-init2">
+        <div class="init-head">
+          <div class="init-title"><span class="tag">Initiative 2</span>Increase "While using app" share</div>
+          <label class="switch"><input type="checkbox" id="toggle-init2"><span class="slider-track"></span></label>
+        </div>
+        <div class="init-desc">Better permission prompt timing &amp; copy reduces the 33% who deny location — growing the addressable audience for Auto‑FMT and SignalBox checks.</div>
+
+        <div class="field">
+          <label>"While using app" share of logged‑in users <b id="lbl-locationApp">67%</b></label>
+          <input type="range" id="slider-locationApp" min="60" max="100" value="67" step="1">
+        </div>
+      </div>
+
+      <div class="init-card" id="card-init3">
+        <div class="init-head">
+          <div class="init-title"><span class="tag">Initiative 3</span>Let guests see Delay Repay components</div>
+          <label class="switch"><input type="checkbox" id="toggle-init3"><span class="slider-track"></span></label>
+        </div>
+        <div class="init-desc">Guest trips are currently a dead end — no location data, no resolution. This routes every guest trip through the same location‑based flow as logged‑in users, closing that gap entirely (full coverage, already in build).</div>
+      </div>
+
+      <details>
+        <summary>▸ Advanced assumptions</summary>
+        <div class="field">
+          <label>Total delayed trips, flexible tickets <b id="lbl-total">2,200,000</b></label>
+          <input type="range" id="slider-total" min="500000" max="5000000" value="2200000" step="50000">
+        </div>
+        <div class="field">
+          <label>Guest share (no location data) <b id="lbl-guest">25%</b></label>
+          <input type="range" id="slider-guest" min="10" max="40" value="25" step="1">
+        </div>
+        <div class="field">
+          <label>On booked train — "while using app" users <b id="lbl-bookedApp">55%</b></label>
+          <input type="range" id="slider-bookedApp" min="30" max="80" value="55" step="1">
+        </div>
+        <div class="field">
+          <label>On booked train — location‑denied users <b id="lbl-bookedDenied">55%</b></label>
+          <input type="range" id="slider-bookedDenied" min="30" max="80" value="55" step="1">
+        </div>
+        <div class="field">
+          <label>Manual confirmation rate — denied + booked train <b id="lbl-confirmDenied">10%</b></label>
+          <input type="range" id="slider-confirmDeniedBooked" min="0" max="100" value="10" step="1">
+        </div>
+        <div class="field">
+          <label>Manual train‑swap rate — denied + another train <b id="lbl-swapDenied">25%</b></label>
+          <input type="range" id="slider-swapDeniedAnother" min="0" max="100" value="25" step="1">
+        </div>
+        <div class="sub" style="margin-top:2px;">These two are unaffected by either initiative (location isn't known here), but you can still stress-test them manually.</div>
+        <div class="field">
+          <label>Industry‑wide total delayed trips (all ticket types) <b id="lbl-industryTotal">3,900,000</b></label>
+          <input type="range" id="slider-industryTotal" min="2000000" max="6000000" value="3900000" step="50000">
+        </div>
+      </details>
+
+      <div class="btnrow">
+        <button class="reset" id="btn-reset">Reset to current state</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="coverage-panel">
+      <div class="coverage-item">
+        <div class="label">Total delayed flexible trips covered</div>
+        <div class="value mono" id="cov-flex">33.1%</div>
+        <div class="sub-label">of all 2,200,000 delayed flexible‑ticket trips modelled</div>
+      </div>
+      <div class="coverage-divider"></div>
+      <div class="coverage-item">
+        <div class="label">Total delayed trips covered</div>
+        <div class="value mono" id="cov-industry">18.7%</div>
+        <div class="sub-label">of all delayed trips, industry‑wide</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat">
+        <div class="label">Total flexible trips</div>
+        <div class="value mono" id="stat-total">2,200,000</div>
+        <div class="delta flat">modelled universe</div>
+      </div>
+      <div class="stat">
+        <div class="label">Automatically / manually resolved</div>
+        <div class="value mono" id="stat-resolved">729,229</div>
+        <div class="delta" id="stat-resolved-delta">vs current state</div>
+      </div>
+      <div class="stat">
+        <div class="label">Resolved share of logged‑in</div>
+        <div class="value mono" id="stat-resolved-pct">44.2%</div>
+        <div class="delta" id="stat-resolved-pct-delta">vs current state</div>
+      </div>
+      <div class="stat">
+        <div class="label">Still "no action" (logged‑in)</div>
+        <div class="value mono" id="stat-noaction">920,771</div>
+        <div class="delta" id="stat-noaction-delta">vs current state</div>
+      </div>
+    </div>
+
+    <div class="tree-wrap">
+      <div class="legend">
+        <span><i style="background:var(--teal)"></i>Population split</span>
+        <span><i style="background:var(--amber)"></i>Location denied / unresolved segment</span>
+        <span><i style="background:var(--green)"></i>Resolved — accurate journey known</span>
+        <span><i style="background:var(--red)"></i>No action taken</span>
+        <span><i style="background:var(--guest)"></i>Excluded — no location data</span>
+      </div>
+
+      <ul class="tree">
+        <li>
+          <div class="node root"><span class="t">Delayed trips with flexible tickets</span><span class="v" id="v-total">2,200,000</span></div>
+          <ul>
+            <li>
+              <div class="node guest excluded" id="node-guest"><span class="t" id="t-guest">UserType: Guest</span><span class="v" id="v-guest">550,000</span><span class="p" id="p-guest">25%</span></div>
+            </li>
+            <li>
+              <div class="node loggedin"><span class="t" id="t-loggedin">UserType: Logged‑in</span><span class="v" id="v-loggedin">1,650,000</span><span class="p" id="p-loggedin">75%</span></div>
+              <ul>
+                <li>
+                  <div class="node app"><span class="t">Location: While using app</span><span class="v" id="v-app">1,105,500</span><span class="p" id="p-app">67%</span></div>
+                  <ul>
+                    <li>
+                      <div class="node resolved"><span class="t">On booked train — auto‑confirmed</span><span class="v" id="v-appBooked">608,025</span><span class="p" id="p-appBooked">55%</span></div>
+                    </li>
+                    <li>
+                      <div class="node neutral"><span class="t">Travelling on another train</span><span class="v" id="v-appAnother">497,475</span><span class="p" id="p-appAnother">45%</span></div>
+                      <ul>
+                        <li><div class="node resolved"><span class="t">Auto Train‑Swap done</span><span class="v" id="v-appAnotherResolved">0</span><span class="p" id="p-appAnotherResolved">0%</span></div></li>
+                        <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-appAnotherNoAction">497,475</span><span class="p" id="p-appAnotherNoAction">100%</span></div></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <div class="node denied"><span class="t">Location: denied</span><span class="v" id="v-denied">544,500</span><span class="p" id="p-denied">33%</span></div>
+                  <ul>
+                    <li>
+                      <div class="node neutral"><span class="t">Travelling on booked train</span><span class="v" id="v-deniedBooked">299,475</span><span class="p" id="p-deniedBooked">55%</span></div>
+                      <ul>
+                        <li><div class="node resolved"><span class="t">Confirmation done</span><span class="v" id="v-deniedBookedResolved">29,948</span><span class="p" id="p-deniedBookedResolved">10%</span></div></li>
+                        <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-deniedBookedNoAction">269,528</span><span class="p" id="p-deniedBookedNoAction">90%</span></div></li>
+                      </ul>
+                    </li>
+                    <li>
+                      <div class="node neutral"><span class="t">Travelling on another train</span><span class="v" id="v-deniedAnother">245,025</span><span class="p" id="p-deniedAnother">45%</span></div>
+                      <ul>
+                        <li><div class="node resolved"><span class="t">Train Swap done</span><span class="v" id="v-deniedAnotherResolved">61,256</span><span class="p" id="p-deniedAnotherResolved">25%</span></div></li>
+                        <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-deniedAnotherNoAction">183,769</span><span class="p" id="p-deniedAnotherNoAction">75%</span></div></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="foot-note">Assumption: 1 trip per guest · location split from the Location Dashboard · automation rates from the Product Mart. Guest trips are excluded from resolution since no location data exists for them.</div>
+    </div>
+
+    <div class="compare">
+      <h3>Current state vs. scenario</h3>
+      <div class="sub">Grey = today's actual conversion rates applied to the same population. Colour = your scenario above.</div>
+
+      <div class="bar-row">
+        <div class="bar-label"><span class="name">Total resolved (Delay Repay eligible)</span><span class="nums" id="bar-total-nums">729,229 → 729,229</span></div>
+        <div class="bar-track"><div class="bar-fill base" id="bar-total-base" style="width:100%"></div></div>
+        <div class="bar-track" style="margin-top:6px;"><div class="bar-fill scenario" id="bar-total-scenario" style="width:100%"></div></div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label"><span class="name">"While using app" + another train → resolved</span><span class="nums" id="bar-appAnother-nums">0 → 0</span></div>
+        <div class="bar-track"><div class="bar-fill base" id="bar-appAnother-base" style="width:0%"></div></div>
+        <div class="bar-track" style="margin-top:6px;"><div class="bar-fill scenario" id="bar-appAnother-scenario" style="width:0%"></div></div>
+      </div>
+
+      <div class="bar-row">
+        <div class="bar-label"><span class="name">Guest trips brought into resolution</span><span class="nums" id="bar-guest-nums">0 → 0</span></div>
+        <div class="bar-track"><div class="bar-fill base" id="bar-guest-base" style="width:0%"></div></div>
+        <div class="bar-track" style="margin-top:6px;"><div class="bar-fill scenario" id="bar-guest-scenario" style="width:0%"></div></div>
+      </div>
+
+      <div class="foot-note" style="margin-top:-4px; margin-bottom:14px;">Denied‑location segments aren't shown here — neither initiative changes them, since Auto‑Train‑Swap needs a known location. Their manual rates are still adjustable under Advanced assumptions.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BASE = {
+  total: 2200000, guest: 0.25, locationApp: 0.67,
+  bookedApp: 0.55, bookedDenied: 0.55,
+  swapAppAnother: 0.0, confirmDeniedBooked: 0.10, swapDeniedAnother: 0.25,
+  industryTotal: 3900000
+};
+
+const INIT1_TARGET = { swapAppAnother: 0.80 };
+const INIT2_TARGET = { locationApp: 0.78 };
+
+const els = {
+  toggle1: document.getElementById('toggle-init1'),
+  toggle2: document.getElementById('toggle-init2'),
+  toggle3: document.getElementById('toggle-init3'),
+  card1: document.getElementById('card-init1'),
+  card2: document.getElementById('card-init2'),
+  card3: document.getElementById('card-init3'),
+  swapApp: document.getElementById('slider-swapAppAnother'),
+  confirmDenied: document.getElementById('slider-confirmDeniedBooked'),
+  swapDenied: document.getElementById('slider-swapDeniedAnother'),
+  locationApp: document.getElementById('slider-locationApp'),
+  total: document.getElementById('slider-total'),
+  guest: document.getElementById('slider-guest'),
+  bookedApp: document.getElementById('slider-bookedApp'),
+  bookedDenied: document.getElementById('slider-bookedDenied'),
+  industryTotal: document.getElementById('slider-industryTotal'),
+  reset: document.getElementById('btn-reset'),
+};
+
+function fmt(n){ return Math.round(n).toLocaleString('en-GB'); }
+function pct(n){ return (n*100).toFixed(0) + '%'; }
+function pct1(n){ return (n*100).toFixed(1) + '%'; }
+
+function fillTrack(input){
+  const min = +input.min, max = +input.max, val = +input.value;
+  const p = (val - min) / (max - min) * 100;
+  input.style.setProperty('--fill', p + '%');
+}
+
+function compute(p){
+  const total = p.total;
+  const guestTrips = total * p.guest;
+  const loggedIn = total * (1 - p.guest);
+  const appTrips = loggedIn * p.locationApp;
+  const deniedTrips = loggedIn * (1 - p.locationApp);
+
+  const appBooked = appTrips * p.bookedApp;
+  const appAnother = appTrips * (1 - p.bookedApp);
+  const appAnotherResolved = appAnother * p.swapAppAnother;
+  const appAnotherNoAction = appAnother - appAnotherResolved;
+
+  const deniedBooked = deniedTrips * p.bookedDenied;
+  const deniedBookedResolved = deniedBooked * p.confirmDeniedBooked;
+  const deniedBookedNoAction = deniedBooked - deniedBookedResolved;
+
+  const deniedAnother = deniedTrips * (1 - p.bookedDenied);
+  const deniedAnotherResolved = deniedAnother * p.swapDeniedAnother;
+  const deniedAnotherNoAction = deniedAnother - deniedAnotherResolved;
+
+  const totalResolved = appBooked + appAnotherResolved + deniedBookedResolved + deniedAnotherResolved;
+  const totalNoAction = appAnotherNoAction + deniedBookedNoAction + deniedAnotherNoAction;
+
+  return {
+    total, guestTrips, loggedIn, appTrips, deniedTrips,
+    appBooked, appAnother, appAnotherResolved, appAnotherNoAction,
+    deniedBooked, deniedBookedResolved, deniedBookedNoAction,
+    deniedAnother, deniedAnotherResolved, deniedAnotherNoAction,
+    totalResolved, totalNoAction
+  };
+}
+
+function readParams(){
+  return {
+    total: +els.total.value,
+    guest: +els.guest.value / 100,
+    locationApp: +els.locationApp.value / 100,
+    bookedApp: +els.bookedApp.value / 100,
+    bookedDenied: +els.bookedDenied.value / 100,
+    swapAppAnother: +els.swapApp.value / 100,
+    confirmDeniedBooked: +els.confirmDenied.value / 100,
+    swapDeniedAnother: +els.swapDenied.value / 100,
+  };
+}
+
+function set(id, text){ document.getElementById(id).textContent = text; }
+
+function render(){
+  [els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal].forEach(fillTrack);
+
+  const rawParams = readParams();
+  const guestOn = els.toggle3.checked;
+  const scenario = { ...rawParams, guest: guestOn ? 0 : rawParams.guest };
+  const baseline = { ...rawParams,
+    locationApp: BASE.locationApp,
+    swapAppAnother: BASE.swapAppAnother,
+    confirmDeniedBooked: BASE.confirmDeniedBooked,
+    swapDeniedAnother: BASE.swapDeniedAnother,
+    guest: rawParams.guest,
+  };
+
+  const S = compute(scenario);
+  const B = compute(baseline);
+
+  // slider labels
+  set('lbl-swapApp', pct(scenario.swapAppAnother));
+  set('lbl-confirmDenied', pct(scenario.confirmDeniedBooked));
+  set('lbl-swapDenied', pct(scenario.swapDeniedAnother));
+  set('lbl-locationApp', pct(scenario.locationApp));
+  set('lbl-total', fmt(scenario.total));
+  set('lbl-guest', pct(scenario.guest));
+  set('lbl-bookedApp', pct(scenario.bookedApp));
+  set('lbl-bookedDenied', pct(scenario.bookedDenied));
+  set('lbl-industryTotal', fmt(+els.industryTotal.value));
+
+  // tree values (scenario)
+  set('v-total', fmt(S.total));
+  set('v-guest', fmt(S.guestTrips)); set('p-guest', guestOn ? '0%' : pct(scenario.guest));
+  set('v-loggedin', fmt(S.loggedIn)); set('p-loggedin', pct(1-scenario.guest));
+  set('t-guest', guestOn ? 'UserType: Guest — routed into flow' : 'UserType: Guest');
+  set('t-loggedin', guestOn ? 'UserType: Logged‑in + Guests' : 'UserType: Logged‑in');
+  const guestNode = document.getElementById('node-guest');
+  guestNode.classList.toggle('excluded', !guestOn);
+  guestNode.classList.toggle('resolved', guestOn);
+
+  set('v-app', fmt(S.appTrips)); set('p-app', pct(scenario.locationApp));
+  set('v-denied', fmt(S.deniedTrips)); set('p-denied', pct(1-scenario.locationApp));
+
+  set('v-appBooked', fmt(S.appBooked)); set('p-appBooked', pct(scenario.bookedApp));
+  set('v-appAnother', fmt(S.appAnother)); set('p-appAnother', pct(1-scenario.bookedApp));
+  set('v-appAnotherResolved', fmt(S.appAnotherResolved)); set('p-appAnotherResolved', pct(scenario.swapAppAnother));
+  set('v-appAnotherNoAction', fmt(S.appAnotherNoAction)); set('p-appAnotherNoAction', pct(1-scenario.swapAppAnother));
+
+  set('v-deniedBooked', fmt(S.deniedBooked)); set('p-deniedBooked', pct(scenario.bookedDenied));
+  set('v-deniedBookedResolved', fmt(S.deniedBookedResolved)); set('p-deniedBookedResolved', pct(scenario.confirmDeniedBooked));
+  set('v-deniedBookedNoAction', fmt(S.deniedBookedNoAction)); set('p-deniedBookedNoAction', pct(1-scenario.confirmDeniedBooked));
+
+  set('v-deniedAnother', fmt(S.deniedAnother)); set('p-deniedAnother', pct(1-scenario.bookedDenied));
+  set('v-deniedAnotherResolved', fmt(S.deniedAnotherResolved)); set('p-deniedAnotherResolved', pct(scenario.swapDeniedAnother));
+  set('v-deniedAnotherNoAction', fmt(S.deniedAnotherNoAction)); set('p-deniedAnotherNoAction', pct(1-scenario.swapDeniedAnother));
+
+  // coverage box
+  const industryTotal = +els.industryTotal.value;
+  set('cov-flex', pct1(S.totalResolved / S.total));
+  set('cov-industry', pct1(S.totalResolved / industryTotal));
+  const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
+  if(flexSub) flexSub.textContent = 'of all ' + fmt(S.total) + ' delayed flexible‑ticket trips modelled';
+
+  // stat row
+  set('stat-total', fmt(S.total));
+  set('stat-resolved', fmt(S.totalResolved));
+  set('stat-resolved-pct', pct1(S.totalResolved / S.loggedIn));
+  set('stat-noaction', fmt(S.totalNoAction));
+
+  const deltaResolved = S.totalResolved - B.totalResolved;
+  const deltaResolvedPct = (S.totalResolved / S.loggedIn) - (B.totalResolved / B.loggedIn);
+  const deltaNoAction = S.totalNoAction - B.totalNoAction;
+
+  const rDelta = document.getElementById('stat-resolved-delta');
+  rDelta.textContent = (deltaResolved >= 0 ? '+' : '') + fmt(deltaResolved) + ' vs current state';
+  rDelta.className = 'delta ' + (deltaResolved > 0.5 ? 'up' : 'flat');
+
+  const rpDelta = document.getElementById('stat-resolved-pct-delta');
+  rpDelta.textContent = (deltaResolvedPct >= 0 ? '+' : '') + (deltaResolvedPct*100).toFixed(1) + ' pts vs current state';
+  rpDelta.className = 'delta ' + (deltaResolvedPct > 0.0005 ? 'up' : 'flat');
+
+  const naDelta = document.getElementById('stat-noaction-delta');
+  naDelta.textContent = (deltaNoAction >= 0 ? '+' : '') + fmt(deltaNoAction) + ' vs current state';
+  naDelta.className = 'delta ' + (deltaNoAction < -0.5 ? 'up' : 'flat');
+
+  // comparison bars
+  const maxTotal = Math.max(S.totalResolved, B.totalResolved, 1);
+  document.getElementById('bar-total-nums').textContent = fmt(B.totalResolved) + ' → ' + fmt(S.totalResolved);
+  document.getElementById('bar-total-base').style.width = (B.totalResolved/maxTotal*100) + '%';
+  document.getElementById('bar-total-scenario').style.width = (S.totalResolved/maxTotal*100) + '%';
+
+  const maxAppAnother = Math.max(S.appAnotherResolved, B.appAnotherResolved, S.appAnother, 1);
+  document.getElementById('bar-appAnother-nums').textContent = fmt(B.appAnotherResolved) + ' → ' + fmt(S.appAnotherResolved);
+  document.getElementById('bar-appAnother-base').style.width = (B.appAnotherResolved/maxAppAnother*100) + '%';
+  document.getElementById('bar-appAnother-scenario').style.width = (S.appAnotherResolved/maxAppAnother*100) + '%';
+
+  const guestOriginalTrips = rawParams.total * rawParams.guest;
+  const guestResolved = guestOn ? guestOriginalTrips * (S.totalResolved / S.loggedIn) : 0;
+  const maxGuest = Math.max(guestResolved, guestOriginalTrips, 1);
+  document.getElementById('bar-guest-nums').textContent = '0 → ' + fmt(guestResolved);
+  document.getElementById('bar-guest-base').style.width = '0%';
+  document.getElementById('bar-guest-scenario').style.width = (guestResolved/maxGuest*100) + '%';
+
+}
+
+function setSliderEnabled(sliders, enabled){
+  sliders.forEach(s => s.disabled = !enabled);
+}
+
+els.toggle1.addEventListener('change', () => {
+  const on = els.toggle1.checked;
+  els.card1.classList.toggle('on', on);
+  setSliderEnabled([els.swapApp], on);
+  els.swapApp.value = (on ? INIT1_TARGET.swapAppAnother : BASE.swapAppAnother) * 100;
+  render();
+});
+
+els.toggle2.addEventListener('change', () => {
+  const on = els.toggle2.checked;
+  els.card2.classList.toggle('on', on);
+  setSliderEnabled([els.locationApp], on);
+  els.locationApp.value = (on ? INIT2_TARGET.locationApp : BASE.locationApp) * 100;
+  render();
+});
+
+els.toggle3.addEventListener('change', () => {
+  els.card3.classList.toggle('on', els.toggle3.checked);
+  render();
+});
+
+[els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal]
+  .forEach(el => el.addEventListener('input', render));
+
+els.reset.addEventListener('click', () => {
+  els.toggle1.checked = false; els.toggle2.checked = false; els.toggle3.checked = false;
+  els.card1.classList.remove('on'); els.card2.classList.remove('on'); els.card3.classList.remove('on');
+  setSliderEnabled([els.swapApp], false);
+  setSliderEnabled([els.locationApp], false);
+  els.total.value = BASE.total; els.guest.value = BASE.guest*100;
+  els.bookedApp.value = BASE.bookedApp*100; els.bookedDenied.value = BASE.bookedDenied*100;
+  els.swapApp.value = BASE.swapAppAnother*100; els.confirmDenied.value = BASE.confirmDeniedBooked*100;
+  els.swapDenied.value = BASE.swapDeniedAnother*100; els.locationApp.value = BASE.locationApp*100;
+  els.industryTotal.value = BASE.industryTotal;
+  render();
+});
+
+// init disabled state
+setSliderEnabled([els.swapApp], false);
+setSliderEnabled([els.locationApp], false);
+render();
+</script>
+</body>
+</html>
