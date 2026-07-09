@@ -272,7 +272,7 @@
           <div class="init-title"><span class="tag">Initiative 3</span>Let guests see Delay Repay components</div>
           <label class="switch"><input type="checkbox" id="toggle-init3"><span class="slider-track"></span></label>
         </div>
-        <div class="init-desc">Guest trips are currently a dead end — no location data, no resolution. This routes every guest trip through the same location‑based flow as logged‑in users, closing that gap entirely (full coverage, already in build).</div>
+        <div class="init-desc">Guest trips are currently a dead end — no location data, no resolution. This routes every guest trip through the same location‑based flow as logged‑in users, closing that gap entirely (full coverage, already in build). It also closes the guest gap on Advance tickets — those need no confirmation logic once a guest is recognised, so their industry‑wide coverage moves from 80% to 100%.</div>
       </div>
 
       <details>
@@ -310,6 +310,7 @@
           <label>Non‑flexible tickets already covered <b id="lbl-nonFlexCoverage">80%</b></label>
           <input type="range" id="slider-nonFlexCoverage" min="0" max="100" value="80" step="1">
         </div>
+        <div class="sub" style="margin-top:-8px;">Moves with Initiative 3 (guest gap closes on Advance tickets too), but still adjustable manually.</div>
       </details>
 
       <div class="btnrow">
@@ -459,6 +460,7 @@ const BASE = {
 
 const INIT1_TARGET = { swapAppAnother: 0.80 };
 const INIT2_TARGET = { locationApp: 0.78 };
+const INIT3_TARGET = { nonFlexCoverage: 1.00 };
 
 const els = {
   toggle1: document.getElementById('toggle-init1'),
@@ -668,7 +670,9 @@ els.toggle2.addEventListener('change', () => {
 });
 
 els.toggle3.addEventListener('change', () => {
-  els.card3.classList.toggle('on', els.toggle3.checked);
+  const on = els.toggle3.checked;
+  els.card3.classList.toggle('on', on);
+  els.nonFlexCoverage.value = (on ? INIT3_TARGET.nonFlexCoverage : BASE.nonFlexCoverage) * 100;
   render();
 });
 
