@@ -288,6 +288,74 @@
   }
   details[open] .diagram-summary .chevron{ transform: rotate(90deg); }
   .diagram-summary .hint{ font-family:'IBM Plex Sans'; font-weight:400; font-size:13px; color:var(--muted); margin-left:auto; }
+
+  /* ---- Waterfall section (white background, distinct palette) ---- */
+  .waterfall-section{
+    background: #ffffff; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding: 4px 0;
+  }
+  .waterfall-inner{ max-width:1680px; margin:0 auto; padding: 32px clamp(14px,3.5vw,40px) 36px; }
+  .wf-title{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; color:#1b1464;
+    font-size: clamp(20px, 3vw, 30px); letter-spacing:-.01em; margin:0;
+  }
+  .wf-subtitle{
+    font-family:'IBM Plex Sans', sans-serif; color:#4b4a78; font-size: clamp(13px, 1.6vw, 15.5px);
+    margin: 8px 0 22px;
+  }
+  .wf-stats-row{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; margin-bottom:26px;
+  }
+  .wf-stat{
+    border-radius:10px; padding:14px 16px; border:1px solid transparent;
+  }
+  .wf-stat.baseline, .wf-stat.exit{ background:#eceafb; border-color:#cfc9f0; }
+  .wf-stat.lift{ background:#e3f9f1; border-color:#bdeeda; }
+  .wf-stat-label{ font-family:'IBM Plex Sans'; font-size:12.5px; color:#5b5a86; margin-bottom:6px; }
+  .wf-stat.lift .wf-stat-label{ color:#2f7d63; }
+  .wf-stat-value{ font-family:'Space Grotesk'; font-weight:700; font-size: clamp(18px, 2.4vw, 24px); color:#1b1464; }
+  .wf-stat.lift .wf-stat-value{ color:#1a9c74; }
+  .wf-stat-sub{ font-family:'IBM Plex Mono'; font-size:11.5px; color:#7a79a3; margin-top:5px; }
+  .wf-stat.lift .wf-stat-sub{ color:#3f9d81; }
+
+  .wf-chart{ position:relative; }
+  .wf-chart-area{
+    position:relative; height: 300px; border-left:1px solid #e5e7eb; border-bottom:1px solid #e5e7eb;
+    margin-left: 44px;
+  }
+  .wf-gridline{ position:absolute; left:0; right:0; border-top:1px solid #eef0f4; }
+  .wf-gridline-label{
+    position:absolute; left:-44px; width:38px; text-align:right; font-family:'IBM Plex Mono';
+    font-size:11px; color:#9694b8; transform:translateY(-50%);
+  }
+  .wf-ceiling-line{
+    position:absolute; left:0; right:0; border-top:2px dashed #e0483e; z-index:3;
+  }
+  .wf-ceiling-label{
+    position:absolute; right:6px; top:-20px; font-family:'IBM Plex Mono'; font-size:12px;
+    color:#e0483e; font-weight:600; white-space:nowrap;
+  }
+  .wf-bars{
+    position:absolute; inset:0; display:flex; align-items:flex-end;
+  }
+  .wf-bar-col{
+    flex:1; position:relative; height:100%; margin: 0 clamp(6px,1.5vw,18px);
+  }
+  .wf-bar{
+    position:absolute; left:0; right:0; border-radius:4px 4px 0 0; transition: height .25s ease, bottom .25s ease;
+  }
+  .wf-bar.full{ background:#1b1464; }
+  .wf-bar.lift{ background:#4fd1a5; border-radius:4px; }
+  .wf-bar-value{
+    position:absolute; left:0; right:0; bottom:calc(100% + 6px); text-align:center;
+    font-family:'IBM Plex Mono'; font-weight:600; font-size:12.5px; color:#1b1464; white-space:nowrap;
+  }
+  .wf-bar.lift + .wf-bar-value{ color:#1a9c74; }
+  .wf-bar-label{
+    position:absolute; top:calc(100% + 10px); left:0; right:0; text-align:center;
+    font-family:'IBM Plex Sans'; font-size:12.5px; color:#5b5a86; line-height:1.3;
+  }
+  .wf-bar-col-labels{ position:relative; height:0; }
 </style>
 </head>
 <body>
@@ -393,6 +461,69 @@
 
   <div class="btnrow">
     <button class="reset" id="btn-reset">Reset to current state</button>
+  </div>
+</div>
+
+<div class="full-bleed waterfall-section">
+  <div class="waterfall-inner">
+    <h2 class="wf-title" id="wf-title">Delay Repay coverage: from 39% to 39% of disrupted journeys</h2>
+    <p class="wf-subtitle" id="wf-subtitle">From 2.06M trips covered today toward the 3.90M industry ceiling.</p>
+
+    <div class="wf-stats-row">
+      <div class="wf-stat baseline">
+        <div class="wf-stat-label">Baseline</div>
+        <div class="wf-stat-value" id="wf-baseline-value">2.06M</div>
+        <div class="wf-stat-sub">today, no initiatives</div>
+      </div>
+      <div class="wf-stat lift">
+        <div class="wf-stat-label">Initiative 1</div>
+        <div class="wf-stat-value" id="wf-init1-value">+0.00M</div>
+        <div class="wf-stat-sub" id="wf-init1-sub">abs diff: +0% · rel diff: +0%</div>
+      </div>
+      <div class="wf-stat lift">
+        <div class="wf-stat-label">Initiative 2</div>
+        <div class="wf-stat-value" id="wf-init2-value">+0.00M</div>
+        <div class="wf-stat-sub" id="wf-init2-sub">abs diff: +0% · rel diff: +0%</div>
+      </div>
+      <div class="wf-stat lift">
+        <div class="wf-stat-label">Initiative 3</div>
+        <div class="wf-stat-value" id="wf-init3-value">+0.00M</div>
+        <div class="wf-stat-sub" id="wf-init3-sub">abs diff: +0% · rel diff: +0%</div>
+      </div>
+      <div class="wf-stat exit">
+        <div class="wf-stat-label">Exit</div>
+        <div class="wf-stat-value" id="wf-exit-value">2.06M</div>
+        <div class="wf-stat-sub" id="wf-exit-sub">+0% reach</div>
+      </div>
+    </div>
+
+    <div class="wf-chart">
+      <div class="wf-chart-area" id="wf-chart-area">
+        <div class="wf-ceiling-line" id="wf-ceiling-line"><span class="wf-ceiling-label" id="wf-ceiling-label">Industry ceiling — 3.90M</span></div>
+        <div class="wf-bars" id="wf-bars">
+          <div class="wf-bar-col">
+            <div class="wf-bar full" id="bar-baseline"><div class="wf-bar-value" id="val-baseline">2.06M</div></div>
+            <div class="wf-bar-label">Baseline</div>
+          </div>
+          <div class="wf-bar-col">
+            <div class="wf-bar lift" id="bar-init1"><div class="wf-bar-value" id="val-init1">+0.00M</div></div>
+            <div class="wf-bar-label">Initiative 1</div>
+          </div>
+          <div class="wf-bar-col">
+            <div class="wf-bar lift" id="bar-init2"><div class="wf-bar-value" id="val-init2">+0.00M</div></div>
+            <div class="wf-bar-label">Initiative 2</div>
+          </div>
+          <div class="wf-bar-col">
+            <div class="wf-bar lift" id="bar-init3"><div class="wf-bar-value" id="val-init3">+0.00M</div></div>
+            <div class="wf-bar-label">Initiative 3</div>
+          </div>
+          <div class="wf-bar-col">
+            <div class="wf-bar full" id="bar-exit"><div class="wf-bar-value" id="val-exit">2.06M</div></div>
+            <div class="wf-bar-label">Exit</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -641,6 +772,56 @@ function render(){
   if(industrySub) industrySub.textContent = 'of all ' + fmt(industryTotal) + ' delayed trips modelled';
   const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
   if(flexSub) flexSub.textContent = 'of all ' + fmt(S.total) + ' delayed flexible‑ticket trips modelled';
+
+  // ---- Waterfall: Baseline -> Initiative 1 -> Initiative 2 -> Initiative 3 -> Exit ----
+  function fmtM(n){ return (n/1000000).toFixed(2) + 'M'; }
+
+  const covered0 = B.totalResolved + nonFlexTrips * BASE.nonFlexCoverage; // baseline, all initiatives off
+  const p1 = { ...baselineForDelta, swapAppAnother: rawParams.swapAppAnother };
+  const covered1 = compute(p1).totalResolved + nonFlexTrips * BASE.nonFlexCoverage;
+  const p2 = { ...p1, locationApp: rawParams.locationApp };
+  const covered2 = compute(p2).totalResolved + nonFlexTrips * BASE.nonFlexCoverage;
+  const covered3 = industryCovered; // Exit = full current scenario, matches the coverage box above
+
+  const inc1 = Math.max(0, covered1 - covered0);
+  const inc2 = Math.max(0, covered2 - covered1);
+  const inc3 = Math.max(0, covered3 - covered2);
+
+  function absDiff(inc){ return covered0 === 0 ? 0 : (inc / covered0) * 100; }
+  function relDiff(inc){ return industryTotal === 0 ? 0 : (inc / industryTotal) * 100; }
+
+  set('wf-title', 'Delay Repay coverage: from ' + Math.round(covered0/industryTotal*100) + '% to ' + Math.round(covered3/industryTotal*100) + '% of disrupted journeys');
+  set('wf-subtitle', 'From ' + fmtM(covered0) + ' trips covered today toward the ' + fmtM(industryTotal) + ' industry ceiling — reaching ' + fmtM(covered3) + ' with the initiatives selected below.');
+
+  set('wf-baseline-value', fmtM(covered0));
+  set('wf-init1-value', '+' + fmtM(inc1));
+  set('wf-init1-sub', 'abs diff: +' + absDiff(inc1).toFixed(0) + '% · rel diff: +' + relDiff(inc1).toFixed(0) + '%');
+  set('wf-init2-value', '+' + fmtM(inc2));
+  set('wf-init2-sub', 'abs diff: +' + absDiff(inc2).toFixed(0) + '% · rel diff: +' + relDiff(inc2).toFixed(0) + '%');
+  set('wf-init3-value', '+' + fmtM(inc3));
+  set('wf-init3-sub', 'abs diff: +' + absDiff(inc3).toFixed(0) + '% · rel diff: +' + relDiff(inc3).toFixed(0) + '%');
+  set('wf-exit-value', fmtM(covered3));
+  set('wf-exit-sub', (covered0 === 0 ? '+0' : '+' + (((covered3-covered0)/covered0)*100).toFixed(0)) + '% reach');
+  set('wf-ceiling-label', 'Industry ceiling — ' + fmtM(industryTotal));
+
+  const maxScale = Math.ceil((industryTotal * 1.15) / 500000) * 500000;
+  const bars = [
+    { bar:'bar-baseline', val:'val-baseline', bottom:0, height:covered0, text:fmtM(covered0) },
+    { bar:'bar-init1', val:'val-init1', bottom:covered0, height:inc1, text:'+' + fmtM(inc1) },
+    { bar:'bar-init2', val:'val-init2', bottom:covered1, height:inc2, text:'+' + fmtM(inc2) },
+    { bar:'bar-init3', val:'val-init3', bottom:covered2, height:inc3, text:'+' + fmtM(inc3) },
+    { bar:'bar-exit', val:'val-exit', bottom:0, height:covered3, text:fmtM(covered3) },
+  ];
+  bars.forEach(b => {
+    const barEl = document.getElementById(b.bar);
+    const valEl = document.getElementById(b.val);
+    if(!barEl || !valEl) return;
+    barEl.style.bottom = (b.bottom / maxScale * 100) + '%';
+    barEl.style.height = Math.max(0.4, b.height / maxScale * 100) + '%';
+    valEl.textContent = b.text;
+  });
+  const ceilingLine = document.getElementById('wf-ceiling-line');
+  if(ceilingLine) ceilingLine.style.bottom = (industryTotal / maxScale * 100) + '%';
 
   if(typeof fitTree === 'function') fitTree();
 }
