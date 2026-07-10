@@ -213,6 +213,23 @@
   .node.noaction{ border-left:4px solid var(--red); background:#2a1712; }
   .node.excluded{ border-left:4px solid var(--guest); opacity:.75; }
 
+  /* On narrow viewports, the horizontal org-chart can't fit — switch to a vertical indented tree */
+  @media (max-width: 900px){
+    .tree-wrap{ overflow-x:visible; padding: 20px 10px 16px; }
+    ul.tree, ul.tree ul{
+      display:block; padding:0; margin:0; justify-content:normal;
+    }
+    ul.tree li{
+      display:block; text-align:left; padding: 10px 0 0 18px;
+      position:relative; border-left: 2px solid var(--line); margin-left:9px;
+    }
+    ul.tree > li{ border-left:none; margin-left:0; padding-left:0; }
+    ul.tree li::before, ul.tree li::after{ display:none; }
+    ul.tree ul::before{ display:none; }
+    .node{ display:block; width:100%; max-width:100%; min-width:0; }
+    .node.root{ min-width:0; max-width:100%; }
+  }
+
   .foot-note{ margin-top:18px; font-size:13px; color:var(--muted); padding:0 4px; }
   .foot-note a{ color:var(--teal); }
 
