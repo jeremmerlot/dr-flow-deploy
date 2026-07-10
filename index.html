@@ -302,13 +302,12 @@
   <div class="coverage-item">
     <div class="label">Total delayed trips covered</div>
     <div class="value mono" id="cov-industry">18.7%<span class="cov-delta" id="cov-industry-delta"></span></div>
-    <div class="sub-label" id="cov-industry-sub">of all delayed trips, industry‑wide</div>
+    <div class="sub-label" id="cov-industry-sub">of all 3,900,000 delayed trips modelled</div>
   </div>
 </div>
 
 <div class="controls-panel">
-  <h2>Scenario controls</h2>
-  <div class="sub">Toggle each initiative on, then drag its slider to test different levels of success.</div>
+  <h2 style="margin-bottom:18px;">Scenario controls</h2>
 
   <div class="init-row">
     <div class="init-card" id="card-init1">
@@ -618,7 +617,7 @@ function render(){
   document.getElementById('cov-flex').innerHTML = pct1(flexPct) + '<span class="cov-delta" id="cov-flex-delta">' + deltaLabel(flexPct, baselineFlexPct) + '</span>';
   document.getElementById('cov-industry').innerHTML = pct1(industryPct) + '<span class="cov-delta" id="cov-industry-delta">' + deltaLabel(industryPct, baselineIndustryPct) + '</span>';
   const industrySub = document.getElementById('cov-industry-sub');
-  if(industrySub) industrySub.textContent = 'of all delayed trips, industry‑wide (incl. ' + pct(nonFlexCoverage) + ' of ' + fmt(nonFlexTrips) + ' non‑flexible trips already covered)';
+  if(industrySub) industrySub.textContent = 'of all ' + fmt(industryTotal) + ' delayed trips modelled';
   const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
   if(flexSub) flexSub.textContent = 'of all ' + fmt(S.total) + ' delayed flexible‑ticket trips modelled';
 
