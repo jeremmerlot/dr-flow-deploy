@@ -502,7 +502,7 @@
 
     <div class="wf-chart">
       <div class="wf-chart-area" id="wf-chart-area">
-        <div class="wf-ceiling-line" id="wf-ceiling-line"><span class="wf-ceiling-label" id="wf-ceiling-label">Industry ceiling — 3.90M</span></div>
+        <div class="wf-ceiling-line" id="wf-ceiling-line"><span class="wf-ceiling-label" id="wf-ceiling-label">Total Delayed Trips according to the Industry — 3.90M</span></div>
         <div class="wf-bars" id="wf-bars">
           <div class="wf-bar-col">
             <div class="wf-bar full" id="bar-baseline"><div class="wf-bar-value" id="val-baseline">2.06M</div></div>
@@ -806,7 +806,7 @@ function render(){
   set('wf-init3-sub', 'abs diff: +' + absDiff(inc3).toFixed(0) + '% · rel diff: +' + relDiff(inc3).toFixed(0) + '%');
   set('wf-exit-value', fmtM(covered3));
   set('wf-exit-sub', (covered0 === 0 ? '+0' : '+' + (((covered3-covered0)/covered0)*100).toFixed(0)) + '% reach');
-  set('wf-ceiling-label', 'Industry ceiling — ' + fmtM(industryTotal));
+  set('wf-ceiling-label', 'Total Delayed Trips according to the Industry — ' + fmtM(industryTotal));
 
   const maxScale = Math.ceil((industryTotal * 1.15) / 500000) * 500000;
   const bars = [
