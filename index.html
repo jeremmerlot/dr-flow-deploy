@@ -302,29 +302,6 @@
   </div>
 </div>
 
-<div class="stat-row">
-  <div class="stat">
-    <div class="label">Total flexible trips</div>
-    <div class="value mono" id="stat-total">2,200,000</div>
-    <div class="delta flat">modelled universe</div>
-  </div>
-  <div class="stat">
-    <div class="label">Automatically / manually resolved</div>
-    <div class="value mono" id="stat-resolved">729,229</div>
-    <div class="delta" id="stat-resolved-delta">vs current state</div>
-  </div>
-  <div class="stat">
-    <div class="label">Resolved share of logged‑in</div>
-    <div class="value mono" id="stat-resolved-pct">44.2%</div>
-    <div class="delta" id="stat-resolved-pct-delta">vs current state</div>
-  </div>
-  <div class="stat">
-    <div class="label">Still "no action" (logged‑in)</div>
-    <div class="value mono" id="stat-noaction">920,771</div>
-    <div class="delta" id="stat-noaction-delta">vs current state</div>
-  </div>
-</div>
-
 <div class="controls-panel">
   <h2>Scenario controls</h2>
   <div class="sub">Toggle each initiative on, then drag its slider to test different levels of success.</div>
@@ -575,16 +552,7 @@ function render(){
   const rawParams = readParams();
   const guestOn = els.toggle3.checked;
   const scenario = { ...rawParams, guest: guestOn ? 0 : rawParams.guest };
-  const baseline = { ...rawParams,
-    locationApp: BASE.locationApp,
-    swapAppAnother: BASE.swapAppAnother,
-    confirmDeniedBooked: BASE.confirmDeniedBooked,
-    swapDeniedAnother: BASE.swapDeniedAnother,
-    guest: rawParams.guest,
-  };
-
   const S = compute(scenario);
-  const B = compute(baseline);
 
   // slider labels
   set('lbl-swapApp', pct(scenario.swapAppAnother));
@@ -630,28 +598,6 @@ function render(){
   if(industrySub) industrySub.textContent = 'of all delayed trips, industry‑wide (incl. ' + pct(nonFlexCoverage) + ' of ' + fmt(nonFlexTrips) + ' non‑flexible trips already covered)';
   const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
   if(flexSub) flexSub.textContent = 'of all ' + fmt(S.total) + ' delayed flexible‑ticket trips modelled';
-
-  // stat row
-  set('stat-total', fmt(S.total));
-  set('stat-resolved', fmt(S.totalResolved));
-  set('stat-resolved-pct', pct1(S.totalResolved / S.loggedIn));
-  set('stat-noaction', fmt(S.totalNoAction));
-
-  const deltaResolved = S.totalResolved - B.totalResolved;
-  const deltaResolvedPct = (S.totalResolved / S.loggedIn) - (B.totalResolved / B.loggedIn);
-  const deltaNoAction = S.totalNoAction - B.totalNoAction;
-
-  const rDelta = document.getElementById('stat-resolved-delta');
-  rDelta.textContent = (deltaResolved >= 0 ? '+' : '') + fmt(deltaResolved) + ' vs current state';
-  rDelta.className = 'delta ' + (deltaResolved > 0.5 ? 'up' : 'flat');
-
-  const rpDelta = document.getElementById('stat-resolved-pct-delta');
-  rpDelta.textContent = (deltaResolvedPct >= 0 ? '+' : '') + (deltaResolvedPct*100).toFixed(1) + ' pts vs current state';
-  rpDelta.className = 'delta ' + (deltaResolvedPct > 0.0005 ? 'up' : 'flat');
-
-  const naDelta = document.getElementById('stat-noaction-delta');
-  naDelta.textContent = (deltaNoAction >= 0 ? '+' : '') + fmt(deltaNoAction) + ' vs current state';
-  naDelta.className = 'delta ' + (deltaNoAction < -0.5 ? 'up' : 'flat');
 
 }
 
