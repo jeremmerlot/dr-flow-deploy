@@ -162,48 +162,38 @@
 
   .tree-wrap{
     background: var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding: 30px 16px 20px; overflow-x:auto;
+    padding: 24px clamp(14px,3vw,24px) 20px; overflow-x:visible;
   }
   .legend{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:18px; padding:0 4px; }
   .legend span{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); font-family:'IBM Plex Mono'; }
   .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
 
-  /* pure-css org chart */
+  /* Vertical indented tree — guarantees it fits any width, no horizontal scroll */
   ul.tree, ul.tree ul{
-    list-style:none; margin:0; padding-top:26px; position:relative;
-    display:flex; justify-content:center;
+    list-style:none; margin:0; padding:0;
   }
-  ul.tree{ padding-top:0; }
   ul.tree li{
-    position:relative; padding:26px 10px 0; text-align:center;
-    display:flex; flex-direction:column; align-items:center;
+    position:relative; padding: 10px 0 0 20px;
+    border-left: 2px solid var(--line); margin-left: 10px;
   }
-  ul.tree li::before, ul.tree li::after{
-    content:''; position:absolute; top:0; right:50%; width:50%; height:26px;
+  ul.tree > li{ border-left:none; margin-left:0; padding-left:0; }
+  ul.tree li:last-child{ border-left: 2px solid transparent; }
+  ul.tree li::before{
+    content:''; position:absolute; left:-2px; top:26px; width:18px; height:0;
     border-top:2px solid var(--line);
   }
-  ul.tree li::after{ right:auto; left:50%; border-left:2px solid var(--line); }
-  ul.tree li:only-child::after, ul.tree li:only-child::before{ display:none; }
-  ul.tree li:only-child{ padding-top:0; }
-  ul.tree > li{ padding-top:0; }
-  ul.tree > li::before, ul.tree > li::after{ display:none; }
-  ul.tree li:first-child::before, ul.tree li:last-child::after{ border:0 none; }
-  ul.tree li:last-child::before{ border-right:2px solid var(--line); border-radius:0 6px 0 0; }
-  ul.tree li:first-child::after{ border-radius:6px 0 0 0; }
-  ul.tree ul::before{
-    content:''; position:absolute; top:0; left:50%; border-left:2px solid var(--line); width:0; height:26px;
-  }
+  ul.tree > li::before{ display:none; }
 
   .node{
-    display:inline-block; min-width: clamp(130px, 16vw, 175px); max-width: clamp(160px, 20vw, 220px);
+    display:block; width:100%; max-width: 480px;
     background: var(--panel-2); border:1px solid var(--line); border-radius:10px;
-    padding: clamp(8px,1.4vw,12px) clamp(10px,1.6vw,14px); font-size: clamp(11.5px, 1.4vw, 13.5px); color:var(--text);
+    padding: 10px 14px; font-size: 13.5px; color:var(--text); margin-bottom:2px;
   }
-  .node .t{ color:var(--muted); font-size:12.5px; margin-bottom:7px; display:block; }
+  .node .t{ color:var(--muted); font-size:12.5px; margin-bottom:6px; display:block; }
   .node .v{ font-family:'IBM Plex Mono'; font-weight:600; font-size:16px; }
   .node .p{ font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--muted); margin-left:4px; }
 
-  .node.root{ border-color:var(--teal); background:#0f2733; min-width:230px; max-width:260px; }
+  .node.root{ border-color:var(--teal); background:#0f2733; max-width:520px; }
   .node.guest{ border-left:4px solid var(--guest); }
   .node.loggedin{ border-left:4px solid var(--teal); }
   .node.app{ border-left:4px solid var(--teal); }
@@ -212,23 +202,6 @@
   .node.resolved{ border-left:4px solid var(--green); background:#0f2a22; }
   .node.noaction{ border-left:4px solid var(--red); background:#2a1712; }
   .node.excluded{ border-left:4px solid var(--guest); opacity:.75; }
-
-  /* On narrow viewports, the horizontal org-chart can't fit — switch to a vertical indented tree */
-  @media (max-width: 900px){
-    .tree-wrap{ overflow-x:visible; padding: 20px 10px 16px; }
-    ul.tree, ul.tree ul{
-      display:block; padding:0; margin:0; justify-content:normal;
-    }
-    ul.tree li{
-      display:block; text-align:left; padding: 10px 0 0 18px;
-      position:relative; border-left: 2px solid var(--line); margin-left:9px;
-    }
-    ul.tree > li{ border-left:none; margin-left:0; padding-left:0; }
-    ul.tree li::before, ul.tree li::after{ display:none; }
-    ul.tree ul::before{ display:none; }
-    .node{ display:block; width:100%; max-width:100%; min-width:0; }
-    .node.root{ min-width:0; max-width:100%; }
-  }
 
   .foot-note{ margin-top:18px; font-size:13px; color:var(--muted); padding:0 4px; }
   .foot-note a{ color:var(--teal); }
