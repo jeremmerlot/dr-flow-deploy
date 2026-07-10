@@ -609,9 +609,10 @@ function render(){
   const industryPct = industryCovered / industryTotal;
 
   function deltaLabel(current, base){
-    const d = (current - base) * 100;
+    if(base === 0) return current === 0 ? '+0.0%' : '+∞%';
+    const d = ((current - base) / base) * 100;
     const sign = d >= 0 ? '+' : '−';
-    return sign + Math.abs(d).toFixed(1) + ' pts';
+    return sign + Math.abs(d).toFixed(1) + '%';
   }
 
   document.getElementById('cov-flex').innerHTML = pct1(flexPct) + '<span class="cov-delta" id="cov-flex-delta">' + deltaLabel(flexPct, baselineFlexPct) + '</span>';
