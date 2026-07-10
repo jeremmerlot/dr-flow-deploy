@@ -162,38 +162,51 @@
 
   .tree-wrap{
     background: var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding: 24px clamp(14px,3vw,24px) 20px; overflow-x:visible;
+    padding: 24px clamp(14px,3vw,24px) 20px; overflow:hidden;
   }
   .legend{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:18px; padding:0 4px; }
   .legend span{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); font-family:'IBM Plex Mono'; }
   .legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
 
-  /* Vertical indented tree — guarantees it fits any width, no horizontal scroll */
+  /* pure-css org chart */
   ul.tree, ul.tree ul{
-    list-style:none; margin:0; padding:0;
+    list-style:none; margin:0; padding-top:26px; position:relative;
+    display:flex; justify-content:center;
   }
+  ul.tree{ padding-top:0; }
   ul.tree li{
-    position:relative; padding: 10px 0 0 20px;
-    border-left: 2px solid var(--line); margin-left: 10px;
+    position:relative; padding:26px 10px 0; text-align:center;
+    display:flex; flex-direction:column; align-items:center;
   }
-  ul.tree > li{ border-left:none; margin-left:0; padding-left:0; }
-  ul.tree li:last-child{ border-left: 2px solid transparent; }
-  ul.tree li::before{
-    content:''; position:absolute; left:-2px; top:26px; width:18px; height:0;
+  ul.tree li::before, ul.tree li::after{
+    content:''; position:absolute; top:0; right:50%; width:50%; height:26px;
     border-top:2px solid var(--line);
   }
-  ul.tree > li::before{ display:none; }
+  ul.tree li::after{ right:auto; left:50%; border-left:2px solid var(--line); }
+  ul.tree li:only-child::after, ul.tree li:only-child::before{ display:none; }
+  ul.tree li:only-child{ padding-top:0; }
+  ul.tree > li{ padding-top:0; }
+  ul.tree > li::before, ul.tree > li::after{ display:none; }
+  ul.tree li:first-child::before, ul.tree li:last-child::after{ border:0 none; }
+  ul.tree li:last-child::before{ border-right:2px solid var(--line); border-radius:0 6px 0 0; }
+  ul.tree li:first-child::after{ border-radius:6px 0 0 0; }
+  ul.tree ul::before{
+    content:''; position:absolute; top:0; left:50%; border-left:2px solid var(--line); width:0; height:26px;
+  }
+
+  .tree-scale-wrap{ overflow:hidden; }
+  ul.tree{ display:inline-flex; transform-origin: top left; }
 
   .node{
-    display:block; width:100%; max-width: 480px;
+    display:inline-block; min-width:175px; max-width:220px;
     background: var(--panel-2); border:1px solid var(--line); border-radius:10px;
-    padding: 10px 14px; font-size: 13.5px; color:var(--text); margin-bottom:2px;
+    padding:12px 14px; font-size:13.5px; color:var(--text);
   }
-  .node .t{ color:var(--muted); font-size:12.5px; margin-bottom:6px; display:block; }
+  .node .t{ color:var(--muted); font-size:12.5px; margin-bottom:7px; display:block; }
   .node .v{ font-family:'IBM Plex Mono'; font-weight:600; font-size:16px; }
   .node .p{ font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--muted); margin-left:4px; }
 
-  .node.root{ border-color:var(--teal); background:#0f2733; max-width:520px; }
+  .node.root{ border-color:var(--teal); background:#0f2733; min-width:230px; max-width:260px; }
   .node.guest{ border-left:4px solid var(--guest); }
   .node.loggedin{ border-left:4px solid var(--teal); }
   .node.app{ border-left:4px solid var(--teal); }
@@ -384,7 +397,7 @@
 </div>
 
 <div class="full-bleed diagram-section">
-  <details>
+  <details id="diagram-details">
     <summary class="diagram-summary"><span class="chevron">▸</span>Current Coverage - full flow<span class="hint">click to expand the trip-by-trip breakdown</span></summary>
     <div class="diagram-inner">
       <div class="tree-wrap">
@@ -396,7 +409,8 @@
           <span><i style="background:var(--guest)"></i>Excluded — no location data</span>
         </div>
 
-        <ul class="tree">
+        <div class="tree-scale-wrap" id="tree-scale-wrap">
+        <ul class="tree" id="tree-root">
           <li>
             <div class="node root"><span class="t">Delayed trips with flexible tickets</span><span class="v" id="v-total">2,200,000</span></div>
             <ul>
@@ -445,6 +459,7 @@
             </ul>
           </li>
         </ul>
+        </div>
 
         <div class="foot-note">Assumption: 1 trip per guest · location split from the Location Dashboard · automation rates from the Product Mart. Guest trips are excluded from resolution since no location data exists for them.</div>
       </div>
@@ -627,6 +642,7 @@ function render(){
   const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
   if(flexSub) flexSub.textContent = 'of all ' + fmt(S.total) + ' delayed flexible‑ticket trips modelled';
 
+  if(typeof fitTree === 'function') fitTree();
 }
 
 function setSliderEnabled(sliders, enabled){
@@ -678,6 +694,31 @@ els.reset.addEventListener('click', () => {
 setSliderEnabled([els.swapApp], false);
 setSliderEnabled([els.locationApp], false);
 render();
+
+function fitTree(){
+  const wrap = document.getElementById('tree-scale-wrap');
+  const root = document.getElementById('tree-root');
+  const details = document.getElementById('diagram-details');
+  if(!wrap || !root || !details || !details.open) return;
+  root.style.transform = 'scale(1)';
+  const naturalWidth = root.scrollWidth;
+  const naturalHeight = root.scrollHeight;
+  const availableWidth = wrap.clientWidth;
+  if(naturalWidth === 0 || availableWidth === 0) return;
+  const scale = Math.min(1, availableWidth / naturalWidth);
+  root.style.transform = 'scale(' + scale + ')';
+  wrap.style.height = Math.ceil(naturalHeight * scale) + 'px';
+}
+
+const diagramDetails = document.getElementById('diagram-details');
+if(diagramDetails){
+  diagramDetails.addEventListener('toggle', () => { if(diagramDetails.open) requestAnimationFrame(fitTree); });
+}
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(fitTree, 120);
+});
 </script>
 </body>
 </html>
