@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signal Box — Flexible Ticket Scenario Planner</title>
+<title>Delay Repay Reach</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -224,233 +224,258 @@
   .bar-fill.base{ background:#4a5570; }
   .bar-fill.scenario{ background: linear-gradient(90deg,var(--teal),var(--green)); }
   .bar-track.stacked .bar-fill{ position:absolute; top:0; left:0; }
+
+  /* ---- Horizontal controls (below metrics) ---- */
+  .controls-panel{
+    background: var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding: 18px 20px; margin-bottom: 22px;
+  }
+  .init-row{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:14px;
+    margin-bottom: 6px;
+  }
+  .init-row .init-card{ margin-bottom:0; height:100%; }
+
+  .advanced-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:14px 18px;
+    margin-top:10px;
+  }
+  .field-input label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  .input-suffix{ position:relative; display:flex; align-items:center; }
+  .input-suffix input[type=number]{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    font-family:'IBM Plex Mono'; font-size:14px; font-weight:600; border-radius:8px;
+    padding:9px 34px 9px 10px; outline:none; transition:border-color .15s ease;
+  }
+  .input-suffix input[type=number]:focus{ border-color:var(--teal); }
+  .input-suffix span{
+    position:absolute; right:10px; color:var(--muted); font-family:'IBM Plex Mono'; font-size:12.5px; pointer-events:none;
+  }
+  .input-suffix input[type=number]::-webkit-inner-spin-button,
+  .input-suffix input[type=number]::-webkit-outer-spin-button{ opacity:.4; }
+
+  .advanced-note{ color:var(--muted); font-size:12.5px; margin-top:12px; grid-column:1/-1; }
+
+  /* ---- Full-bleed diagram section ---- */
+  .full-bleed{
+    width:100vw; position:relative; left:50%; right:50%;
+    margin-left:-50vw; margin-right:-50vw;
+  }
+  .diagram-section{
+    background: var(--panel); border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding: 4px 0 0;
+  }
+  .diagram-inner{ max-width:1680px; margin:0 auto; padding: 0 clamp(14px,3.5vw,40px) 30px; }
+  .diagram-summary{
+    cursor:pointer; list-style:none; user-select:none;
+    display:flex; align-items:center; gap:10px;
+    font-family:'Space Grotesk', sans-serif; font-size:18px; font-weight:600; color:var(--text);
+    padding: 20px clamp(14px,3.5vw,40px);
+    max-width:1680px; margin:0 auto;
+  }
+  .diagram-summary::-webkit-details-marker{ display:none; }
+  .diagram-summary .chevron{
+    font-family:'IBM Plex Mono'; color:var(--teal); font-size:14px; transition: transform .15s ease;
+  }
+  details[open] .diagram-summary .chevron{ transform: rotate(90deg); }
+  .diagram-summary .hint{ font-family:'IBM Plex Sans'; font-weight:400; font-size:13px; color:var(--muted); margin-left:auto; }
 </style>
 </head>
 <body>
 <div class="page">
 
 <header>
-  <div class="eyebrow"><span class="dot"></span>Flexible ticket delay journeys · scenario planner</div>
-  <h1>Signal Box</h1>
-  <p>Play with Initiative 1 (Auto‑Train Swap × Auto‑FMT) and Initiative 2 (location permission uplift) to see how they reshape the 2.2m delayed flexible‑ticket trips below — and how many more become automatically Delay‑Repay eligible.</p>
+  <h1>Delay Repay Reach</h1>
 </header>
 
-<div class="layout">
+<div class="coverage-panel">
+  <div class="coverage-item">
+    <div class="label">Total delayed flexible trips covered</div>
+    <div class="value mono" id="cov-flex">33.1%</div>
+    <div class="sub-label">of all 2,200,000 delayed flexible‑ticket trips modelled</div>
+  </div>
+  <div class="coverage-divider"></div>
+  <div class="coverage-item">
+    <div class="label">Total delayed trips covered</div>
+    <div class="value mono" id="cov-industry">18.7%</div>
+    <div class="sub-label" id="cov-industry-sub">of all delayed trips, industry‑wide</div>
+  </div>
+</div>
 
-  <!-- CONTROLS -->
-  <div class="controls">
+<div class="stat-row">
+  <div class="stat">
+    <div class="label">Total flexible trips</div>
+    <div class="value mono" id="stat-total">2,200,000</div>
+    <div class="delta flat">modelled universe</div>
+  </div>
+  <div class="stat">
+    <div class="label">Automatically / manually resolved</div>
+    <div class="value mono" id="stat-resolved">729,229</div>
+    <div class="delta" id="stat-resolved-delta">vs current state</div>
+  </div>
+  <div class="stat">
+    <div class="label">Resolved share of logged‑in</div>
+    <div class="value mono" id="stat-resolved-pct">44.2%</div>
+    <div class="delta" id="stat-resolved-pct-delta">vs current state</div>
+  </div>
+  <div class="stat">
+    <div class="label">Still "no action" (logged‑in)</div>
+    <div class="value mono" id="stat-noaction">920,771</div>
+    <div class="delta" id="stat-noaction-delta">vs current state</div>
+  </div>
+</div>
 
-    <div class="panel">
-      <h2>Scenario controls</h2>
-      <div class="sub">Toggle each initiative on, then drag its sliders to test different levels of success.</div>
+<div class="controls-panel">
+  <h2>Scenario controls</h2>
+  <div class="sub">Toggle each initiative on, then drag its slider to test different levels of success.</div>
 
-      <div class="init-card" id="card-init1">
-        <div class="init-head">
-          <div class="init-title"><span class="tag">Initiative 1</span>Auto‑Train Swap × Auto‑FMT</div>
-          <label class="switch"><input type="checkbox" id="toggle-init1"><span class="slider-track"></span></label>
-        </div>
-        <div class="init-desc">Auto‑detects the actual train a flexible‑ticket holder is on and swaps it without manual input. Only viable where location is already known — i.e. the "While using app" branch — so it does not change the Denied‑location segments below.</div>
-
-        <div class="field">
-          <label>Auto Train‑Swap rate — "While using app" + another train <b id="lbl-swapApp">0%</b></label>
-          <input type="range" id="slider-swapAppAnother" min="0" max="100" value="0" step="1">
-        </div>
+  <div class="init-row">
+    <div class="init-card" id="card-init1">
+      <div class="init-head">
+        <div class="init-title"><span class="tag">Initiative 1</span>Auto‑Train Swap × Auto‑FMT</div>
+        <label class="switch"><input type="checkbox" id="toggle-init1"><span class="slider-track"></span></label>
       </div>
+      <div class="init-desc">Auto‑detects the actual train a flexible‑ticket holder is on and swaps it without manual input. Only viable where location is already known — i.e. the "While using app" branch — so it does not change the Denied‑location segments below.</div>
 
-      <div class="init-card" id="card-init2">
-        <div class="init-head">
-          <div class="init-title"><span class="tag">Initiative 2</span>Increase "While using app" share</div>
-          <label class="switch"><input type="checkbox" id="toggle-init2"><span class="slider-track"></span></label>
-        </div>
-        <div class="init-desc">Better permission prompt timing &amp; copy reduces the 33% who deny location — growing the addressable audience for Auto‑FMT and SignalBox checks.</div>
-
-        <div class="field">
-          <label>"While using app" share of logged‑in users <b id="lbl-locationApp">67%</b></label>
-          <input type="range" id="slider-locationApp" min="60" max="100" value="67" step="1">
-        </div>
-      </div>
-
-      <div class="init-card" id="card-init3">
-        <div class="init-head">
-          <div class="init-title"><span class="tag">Initiative 3</span>Let guests see Delay Repay components</div>
-          <label class="switch"><input type="checkbox" id="toggle-init3"><span class="slider-track"></span></label>
-        </div>
-        <div class="init-desc">Guest trips are currently a dead end — no location data, no resolution. This routes every guest trip through the same location‑based flow as logged‑in users, closing that gap entirely (full coverage, already in build). It also closes the guest gap on Advance tickets — those need no confirmation logic once a guest is recognised, so their industry‑wide coverage moves from 80% to 100%.</div>
-      </div>
-
-      <details>
-        <summary>▸ Advanced assumptions</summary>
-        <div class="field">
-          <label>Total delayed trips, flexible tickets <b id="lbl-total">2,200,000</b></label>
-          <input type="range" id="slider-total" min="500000" max="5000000" value="2200000" step="50000">
-        </div>
-        <div class="field">
-          <label>Guest share (no location data) <b id="lbl-guest">25%</b></label>
-          <input type="range" id="slider-guest" min="10" max="40" value="25" step="1">
-        </div>
-        <div class="field">
-          <label>On booked train — "while using app" users <b id="lbl-bookedApp">55%</b></label>
-          <input type="range" id="slider-bookedApp" min="30" max="80" value="55" step="1">
-        </div>
-        <div class="field">
-          <label>On booked train — location‑denied users <b id="lbl-bookedDenied">55%</b></label>
-          <input type="range" id="slider-bookedDenied" min="30" max="80" value="55" step="1">
-        </div>
-        <div class="field">
-          <label>Manual confirmation rate — denied + booked train <b id="lbl-confirmDenied">10%</b></label>
-          <input type="range" id="slider-confirmDeniedBooked" min="0" max="100" value="10" step="1">
-        </div>
-        <div class="field">
-          <label>Manual train‑swap rate — denied + another train <b id="lbl-swapDenied">25%</b></label>
-          <input type="range" id="slider-swapDeniedAnother" min="0" max="100" value="25" step="1">
-        </div>
-        <div class="sub" style="margin-top:2px;">These two are unaffected by either initiative (location isn't known here), but you can still stress-test them manually.</div>
-        <div class="field">
-          <label>Industry‑wide total delayed trips (all ticket types) <b id="lbl-industryTotal">3,900,000</b></label>
-          <input type="range" id="slider-industryTotal" min="2000000" max="6000000" value="3900000" step="50000">
-        </div>
-        <div class="field">
-          <label>Non‑flexible tickets already covered <b id="lbl-nonFlexCoverage">80%</b></label>
-          <input type="range" id="slider-nonFlexCoverage" min="0" max="100" value="80" step="1">
-        </div>
-        <div class="sub" style="margin-top:-8px;">Moves with Initiative 3 (guest gap closes on Advance tickets too), but still adjustable manually.</div>
-      </details>
-
-      <div class="btnrow">
-        <button class="reset" id="btn-reset">Reset to current state</button>
+      <div class="field">
+        <label>Auto Train‑Swap rate — "While using app" + another train <b id="lbl-swapApp">0%</b></label>
+        <input type="range" id="slider-swapAppAnother" min="0" max="100" value="0" step="1">
       </div>
     </div>
 
+    <div class="init-card" id="card-init2">
+      <div class="init-head">
+        <div class="init-title"><span class="tag">Initiative 2</span>Increase "While using app" share</div>
+        <label class="switch"><input type="checkbox" id="toggle-init2"><span class="slider-track"></span></label>
+      </div>
+      <div class="init-desc">Better permission prompt timing &amp; copy reduces the 33% who deny location — growing the addressable audience for Auto‑FMT and SignalBox checks.</div>
+
+      <div class="field">
+        <label>"While using app" share of logged‑in users <b id="lbl-locationApp">67%</b></label>
+        <input type="range" id="slider-locationApp" min="60" max="100" value="67" step="1">
+      </div>
+    </div>
+
+    <div class="init-card" id="card-init3">
+      <div class="init-head">
+        <div class="init-title"><span class="tag">Initiative 3</span>Let guests see Delay Repay components</div>
+        <label class="switch"><input type="checkbox" id="toggle-init3"><span class="slider-track"></span></label>
+      </div>
+      <div class="init-desc">Guest trips are currently a dead end — no location data, no resolution. This routes every guest trip through the same location‑based flow as logged‑in users, closing that gap entirely (full coverage, already in build). It also closes the guest gap on Advance tickets — those need no confirmation logic once a guest is recognised, so their industry‑wide coverage moves from 80% to 100%.</div>
+    </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
-
-    <div class="coverage-panel">
-      <div class="coverage-item">
-        <div class="label">Total delayed flexible trips covered</div>
-        <div class="value mono" id="cov-flex">33.1%</div>
-        <div class="sub-label">of all 2,200,000 delayed flexible‑ticket trips modelled</div>
+  <details>
+    <summary>▸ Advanced assumptions</summary>
+    <div class="advanced-grid">
+      <div class="field-input">
+        <label>Total delayed trips, flexible tickets</label>
+        <div class="input-suffix"><input type="number" id="input-total" min="500000" max="5000000" step="50000" value="2200000"><span>trips</span></div>
       </div>
-      <div class="coverage-divider"></div>
-      <div class="coverage-item">
-        <div class="label">Total delayed trips covered</div>
-        <div class="value mono" id="cov-industry">18.7%</div>
-        <div class="sub-label" id="cov-industry-sub">of all delayed trips, industry‑wide</div>
+      <div class="field-input">
+        <label>Guest share (no location data)</label>
+        <div class="input-suffix"><input type="number" id="input-guest" min="10" max="40" step="1" value="25"><span>%</span></div>
       </div>
+      <div class="field-input">
+        <label>On booked train — "while using app" users</label>
+        <div class="input-suffix"><input type="number" id="input-bookedApp" min="30" max="80" step="1" value="55"><span>%</span></div>
+      </div>
+      <div class="field-input">
+        <label>On booked train — location‑denied users</label>
+        <div class="input-suffix"><input type="number" id="input-bookedDenied" min="30" max="80" step="1" value="55"><span>%</span></div>
+      </div>
+      <div class="field-input">
+        <label>Manual confirmation rate — denied + booked train</label>
+        <div class="input-suffix"><input type="number" id="input-confirmDenied" min="0" max="100" step="1" value="10"><span>%</span></div>
+      </div>
+      <div class="field-input">
+        <label>Manual train‑swap rate — denied + another train</label>
+        <div class="input-suffix"><input type="number" id="input-swapDenied" min="0" max="100" step="1" value="25"><span>%</span></div>
+      </div>
+      <div class="field-input">
+        <label>Industry‑wide total delayed trips (all ticket types)</label>
+        <div class="input-suffix"><input type="number" id="input-industryTotal" min="2000000" max="6000000" step="50000" value="3900000"><span>trips</span></div>
+      </div>
+      <div class="field-input">
+        <label>Non‑flexible tickets already covered</label>
+        <div class="input-suffix"><input type="number" id="input-nonFlexCoverage" min="0" max="100" step="1" value="80"><span>%</span></div>
+      </div>
+      <div class="advanced-note">The two "manual" rates above are unaffected by either initiative (location isn't known there). Non‑flexible coverage moves with Initiative 3 (guest gap closes on Advance tickets too), but all fields stay manually adjustable.</div>
     </div>
+  </details>
 
-    <div class="stat-row">
-      <div class="stat">
-        <div class="label">Total flexible trips</div>
-        <div class="value mono" id="stat-total">2,200,000</div>
-        <div class="delta flat">modelled universe</div>
-      </div>
-      <div class="stat">
-        <div class="label">Automatically / manually resolved</div>
-        <div class="value mono" id="stat-resolved">729,229</div>
-        <div class="delta" id="stat-resolved-delta">vs current state</div>
-      </div>
-      <div class="stat">
-        <div class="label">Resolved share of logged‑in</div>
-        <div class="value mono" id="stat-resolved-pct">44.2%</div>
-        <div class="delta" id="stat-resolved-pct-delta">vs current state</div>
-      </div>
-      <div class="stat">
-        <div class="label">Still "no action" (logged‑in)</div>
-        <div class="value mono" id="stat-noaction">920,771</div>
-        <div class="delta" id="stat-noaction-delta">vs current state</div>
-      </div>
-    </div>
-
-    <div class="tree-wrap">
-      <div class="legend">
-        <span><i style="background:var(--teal)"></i>Population split</span>
-        <span><i style="background:var(--amber)"></i>Location denied / unresolved segment</span>
-        <span><i style="background:var(--green)"></i>Resolved — accurate journey known</span>
-        <span><i style="background:var(--red)"></i>No action taken</span>
-        <span><i style="background:var(--guest)"></i>Excluded — no location data</span>
-      </div>
-
-      <ul class="tree">
-        <li>
-          <div class="node root"><span class="t">Delayed trips with flexible tickets</span><span class="v" id="v-total">2,200,000</span></div>
-          <ul>
-            <li>
-              <div class="node guest excluded" id="node-guest"><span class="t" id="t-guest">UserType: Guest</span><span class="v" id="v-guest">550,000</span><span class="p" id="p-guest">25%</span></div>
-            </li>
-            <li>
-              <div class="node loggedin"><span class="t" id="t-loggedin">UserType: Logged‑in</span><span class="v" id="v-loggedin">1,650,000</span><span class="p" id="p-loggedin">75%</span></div>
-              <ul>
-                <li>
-                  <div class="node app"><span class="t">Location: While using app</span><span class="v" id="v-app">1,105,500</span><span class="p" id="p-app">67%</span></div>
-                  <ul>
-                    <li>
-                      <div class="node resolved"><span class="t">On booked train — auto‑confirmed</span><span class="v" id="v-appBooked">608,025</span><span class="p" id="p-appBooked">55%</span></div>
-                    </li>
-                    <li>
-                      <div class="node neutral"><span class="t">Travelling on another train</span><span class="v" id="v-appAnother">497,475</span><span class="p" id="p-appAnother">45%</span></div>
-                      <ul>
-                        <li><div class="node resolved"><span class="t">Auto Train‑Swap done</span><span class="v" id="v-appAnotherResolved">0</span><span class="p" id="p-appAnotherResolved">0%</span></div></li>
-                        <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-appAnotherNoAction">497,475</span><span class="p" id="p-appAnotherNoAction">100%</span></div></li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  <div class="node denied"><span class="t">Location: denied</span><span class="v" id="v-denied">544,500</span><span class="p" id="p-denied">33%</span></div>
-                  <ul>
-                    <li>
-                      <div class="node neutral"><span class="t">Travelling on booked train</span><span class="v" id="v-deniedBooked">299,475</span><span class="p" id="p-deniedBooked">55%</span></div>
-                      <ul>
-                        <li><div class="node resolved"><span class="t">Confirmation done</span><span class="v" id="v-deniedBookedResolved">29,948</span><span class="p" id="p-deniedBookedResolved">10%</span></div></li>
-                        <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-deniedBookedNoAction">269,528</span><span class="p" id="p-deniedBookedNoAction">90%</span></div></li>
-                      </ul>
-                    </li>
-                    <li>
-                      <div class="node neutral"><span class="t">Travelling on another train</span><span class="v" id="v-deniedAnother">245,025</span><span class="p" id="p-deniedAnother">45%</span></div>
-                      <ul>
-                        <li><div class="node resolved"><span class="t">Train Swap done</span><span class="v" id="v-deniedAnotherResolved">61,256</span><span class="p" id="p-deniedAnotherResolved">25%</span></div></li>
-                        <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-deniedAnotherNoAction">183,769</span><span class="p" id="p-deniedAnotherNoAction">75%</span></div></li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-      </ul>
-
-      <div class="foot-note">Assumption: 1 trip per guest · location split from the Location Dashboard · automation rates from the Product Mart. Guest trips are excluded from resolution since no location data exists for them.</div>
-    </div>
-
-    <div class="compare">
-      <h3>Current state vs. scenario</h3>
-      <div class="sub">Grey = today's actual conversion rates applied to the same population. Colour = your scenario above.</div>
-
-      <div class="bar-row">
-        <div class="bar-label"><span class="name">Total resolved (Delay Repay eligible)</span><span class="nums" id="bar-total-nums">729,229 → 729,229</span></div>
-        <div class="bar-track"><div class="bar-fill base" id="bar-total-base" style="width:100%"></div></div>
-        <div class="bar-track" style="margin-top:6px;"><div class="bar-fill scenario" id="bar-total-scenario" style="width:100%"></div></div>
-      </div>
-
-      <div class="bar-row">
-        <div class="bar-label"><span class="name">"While using app" + another train → resolved</span><span class="nums" id="bar-appAnother-nums">0 → 0</span></div>
-        <div class="bar-track"><div class="bar-fill base" id="bar-appAnother-base" style="width:0%"></div></div>
-        <div class="bar-track" style="margin-top:6px;"><div class="bar-fill scenario" id="bar-appAnother-scenario" style="width:0%"></div></div>
-      </div>
-
-      <div class="bar-row">
-        <div class="bar-label"><span class="name">Guest trips brought into resolution</span><span class="nums" id="bar-guest-nums">0 → 0</span></div>
-        <div class="bar-track"><div class="bar-fill base" id="bar-guest-base" style="width:0%"></div></div>
-        <div class="bar-track" style="margin-top:6px;"><div class="bar-fill scenario" id="bar-guest-scenario" style="width:0%"></div></div>
-      </div>
-
-      <div class="foot-note" style="margin-top:-4px; margin-bottom:14px;">Denied‑location segments aren't shown here — neither initiative changes them, since Auto‑Train‑Swap needs a known location. Their manual rates are still adjustable under Advanced assumptions.</div>
-    </div>
-
+  <div class="btnrow">
+    <button class="reset" id="btn-reset">Reset to current state</button>
   </div>
+</div>
+
+<div class="full-bleed diagram-section">
+  <details>
+    <summary class="diagram-summary"><span class="chevron">▸</span>Current Coverage - full flow<span class="hint">click to expand the trip-by-trip breakdown</span></summary>
+    <div class="diagram-inner">
+      <div class="tree-wrap">
+        <div class="legend">
+          <span><i style="background:var(--teal)"></i>Population split</span>
+          <span><i style="background:var(--amber)"></i>Location denied / unresolved segment</span>
+          <span><i style="background:var(--green)"></i>Resolved — accurate journey known</span>
+          <span><i style="background:var(--red)"></i>No action taken</span>
+          <span><i style="background:var(--guest)"></i>Excluded — no location data</span>
+        </div>
+
+        <ul class="tree">
+          <li>
+            <div class="node root"><span class="t">Delayed trips with flexible tickets</span><span class="v" id="v-total">2,200,000</span></div>
+            <ul>
+              <li>
+                <div class="node guest excluded" id="node-guest"><span class="t" id="t-guest">UserType: Guest</span><span class="v" id="v-guest">550,000</span><span class="p" id="p-guest">25%</span></div>
+              </li>
+              <li>
+                <div class="node loggedin"><span class="t" id="t-loggedin">UserType: Logged‑in</span><span class="v" id="v-loggedin">1,650,000</span><span class="p" id="p-loggedin">75%</span></div>
+                <ul>
+                  <li>
+                    <div class="node app"><span class="t">Location: While using app</span><span class="v" id="v-app">1,105,500</span><span class="p" id="p-app">67%</span></div>
+                    <ul>
+                      <li>
+                        <div class="node resolved"><span class="t">On booked train — auto‑confirmed</span><span class="v" id="v-appBooked">608,025</span><span class="p" id="p-appBooked">55%</span></div>
+                      </li>
+                      <li>
+                        <div class="node neutral"><span class="t">Travelling on another train</span><span class="v" id="v-appAnother">497,475</span><span class="p" id="p-appAnother">45%</span></div>
+                        <ul>
+                          <li><div class="node resolved"><span class="t">Auto Train‑Swap done</span><span class="v" id="v-appAnotherResolved">0</span><span class="p" id="p-appAnotherResolved">0%</span></div></li>
+                          <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-appAnotherNoAction">497,475</span><span class="p" id="p-appAnotherNoAction">100%</span></div></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <div class="node denied"><span class="t">Location: denied</span><span class="v" id="v-denied">544,500</span><span class="p" id="p-denied">33%</span></div>
+                    <ul>
+                      <li>
+                        <div class="node neutral"><span class="t">Travelling on booked train</span><span class="v" id="v-deniedBooked">299,475</span><span class="p" id="p-deniedBooked">55%</span></div>
+                        <ul>
+                          <li><div class="node resolved"><span class="t">Confirmation done</span><span class="v" id="v-deniedBookedResolved">29,948</span><span class="p" id="p-deniedBookedResolved">10%</span></div></li>
+                          <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-deniedBookedNoAction">269,528</span><span class="p" id="p-deniedBookedNoAction">90%</span></div></li>
+                        </ul>
+                      </li>
+                      <li>
+                        <div class="node neutral"><span class="t">Travelling on another train</span><span class="v" id="v-deniedAnother">245,025</span><span class="p" id="p-deniedAnother">45%</span></div>
+                        <ul>
+                          <li><div class="node resolved"><span class="t">Train Swap done</span><span class="v" id="v-deniedAnotherResolved">61,256</span><span class="p" id="p-deniedAnotherResolved">25%</span></div></li>
+                          <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-deniedAnotherNoAction">183,769</span><span class="p" id="p-deniedAnotherNoAction">75%</span></div></li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="foot-note">Assumption: 1 trip per guest · location split from the Location Dashboard · automation rates from the Product Mart. Guest trips are excluded from resolution since no location data exists for them.</div>
+      </div>
+    </div>
+  </details>
 </div>
 
 </div>
@@ -475,15 +500,15 @@ const els = {
   card2: document.getElementById('card-init2'),
   card3: document.getElementById('card-init3'),
   swapApp: document.getElementById('slider-swapAppAnother'),
-  confirmDenied: document.getElementById('slider-confirmDeniedBooked'),
-  swapDenied: document.getElementById('slider-swapDeniedAnother'),
+  confirmDenied: document.getElementById('input-confirmDenied'),
+  swapDenied: document.getElementById('input-swapDenied'),
   locationApp: document.getElementById('slider-locationApp'),
-  total: document.getElementById('slider-total'),
-  guest: document.getElementById('slider-guest'),
-  bookedApp: document.getElementById('slider-bookedApp'),
-  bookedDenied: document.getElementById('slider-bookedDenied'),
-  industryTotal: document.getElementById('slider-industryTotal'),
-  nonFlexCoverage: document.getElementById('slider-nonFlexCoverage'),
+  total: document.getElementById('input-total'),
+  guest: document.getElementById('input-guest'),
+  bookedApp: document.getElementById('input-bookedApp'),
+  bookedDenied: document.getElementById('input-bookedDenied'),
+  industryTotal: document.getElementById('input-industryTotal'),
+  nonFlexCoverage: document.getElementById('input-nonFlexCoverage'),
   reset: document.getElementById('btn-reset'),
 };
 
@@ -545,7 +570,7 @@ function readParams(){
 function set(id, text){ document.getElementById(id).textContent = text; }
 
 function render(){
-  [els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal, els.nonFlexCoverage].forEach(fillTrack);
+  [els.swapApp, els.locationApp].forEach(fillTrack);
 
   const rawParams = readParams();
   const guestOn = els.toggle3.checked;
@@ -566,11 +591,6 @@ function render(){
   set('lbl-confirmDenied', pct(scenario.confirmDeniedBooked));
   set('lbl-swapDenied', pct(scenario.swapDeniedAnother));
   set('lbl-locationApp', pct(scenario.locationApp));
-  set('lbl-total', fmt(scenario.total));
-  set('lbl-guest', pct(scenario.guest));
-  set('lbl-bookedApp', pct(scenario.bookedApp));
-  set('lbl-bookedDenied', pct(scenario.bookedDenied));
-  set('lbl-industryTotal', fmt(+els.industryTotal.value));
 
   // tree values (scenario)
   set('v-total', fmt(S.total));
@@ -606,7 +626,6 @@ function render(){
   const industryCovered = S.totalResolved + nonFlexCovered;
   set('cov-flex', pct1(S.totalResolved / S.total));
   set('cov-industry', pct1(industryCovered / industryTotal));
-  set('lbl-nonFlexCoverage', pct(nonFlexCoverage));
   const industrySub = document.getElementById('cov-industry-sub');
   if(industrySub) industrySub.textContent = 'of all delayed trips, industry‑wide (incl. ' + pct(nonFlexCoverage) + ' of ' + fmt(nonFlexTrips) + ' non‑flexible trips already covered)';
   const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
@@ -633,24 +652,6 @@ function render(){
   const naDelta = document.getElementById('stat-noaction-delta');
   naDelta.textContent = (deltaNoAction >= 0 ? '+' : '') + fmt(deltaNoAction) + ' vs current state';
   naDelta.className = 'delta ' + (deltaNoAction < -0.5 ? 'up' : 'flat');
-
-  // comparison bars
-  const maxTotal = Math.max(S.totalResolved, B.totalResolved, 1);
-  document.getElementById('bar-total-nums').textContent = fmt(B.totalResolved) + ' → ' + fmt(S.totalResolved);
-  document.getElementById('bar-total-base').style.width = (B.totalResolved/maxTotal*100) + '%';
-  document.getElementById('bar-total-scenario').style.width = (S.totalResolved/maxTotal*100) + '%';
-
-  const maxAppAnother = Math.max(S.appAnotherResolved, B.appAnotherResolved, S.appAnother, 1);
-  document.getElementById('bar-appAnother-nums').textContent = fmt(B.appAnotherResolved) + ' → ' + fmt(S.appAnotherResolved);
-  document.getElementById('bar-appAnother-base').style.width = (B.appAnotherResolved/maxAppAnother*100) + '%';
-  document.getElementById('bar-appAnother-scenario').style.width = (S.appAnotherResolved/maxAppAnother*100) + '%';
-
-  const guestOriginalTrips = rawParams.total * rawParams.guest;
-  const guestResolved = guestOn ? guestOriginalTrips * (S.totalResolved / S.loggedIn) : 0;
-  const maxGuest = Math.max(guestResolved, guestOriginalTrips, 1);
-  document.getElementById('bar-guest-nums').textContent = '0 → ' + fmt(guestResolved);
-  document.getElementById('bar-guest-base').style.width = '0%';
-  document.getElementById('bar-guest-scenario').style.width = (guestResolved/maxGuest*100) + '%';
 
 }
 
@@ -683,6 +684,7 @@ els.toggle3.addEventListener('change', () => {
 
 [els.swapApp, els.confirmDenied, els.swapDenied, els.locationApp, els.total, els.guest, els.bookedApp, els.bookedDenied, els.industryTotal, els.nonFlexCoverage]
   .forEach(el => el.addEventListener('input', render));
+  // (fillTrack only visually applies to range sliders; number inputs ignore it harmlessly)
 
 els.reset.addEventListener('click', () => {
   els.toggle1.checked = false; els.toggle2.checked = false; els.toggle3.checked = false;
