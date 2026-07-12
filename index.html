@@ -295,6 +295,20 @@
     margin-bottom: 22px;
   }
   .waterfall-inner{ padding: 24px clamp(16px,3vw,28px) 28px; }
+  .wf-header-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .wf-export-link{
+    flex:none; font-family:'IBM Plex Mono'; font-size:12.5px; font-weight:600; color:#4b4a9e;
+    text-decoration:none; border:1px solid #cfc9f0; border-radius:8px; padding:7px 12px;
+    white-space:nowrap; margin-top:4px; transition: background .15s ease, color .15s ease;
+  }
+  .wf-export-link:hover{ background:#eceafb; color:#1b1464; }
+
+  @media print{
+    body *{ visibility:hidden; }
+    .waterfall-section, .waterfall-section *{ visibility:visible; }
+    .waterfall-section{ position:absolute; left:0; top:0; width:100%; border:none; box-shadow:none; }
+    .wf-export-link{ display:none; }
+  }
   .wf-title{
     font-family:'Space Grotesk', sans-serif; font-weight:700; color:#1b1464;
     font-size: clamp(20px, 3vw, 30px); letter-spacing:-.01em; margin:0;
@@ -469,7 +483,10 @@
 
 <div class="waterfall-section">
   <div class="waterfall-inner">
-    <h2 class="wf-title" id="wf-title">Delay Repay coverage: from 39% to 39% of disrupted journeys</h2>
+    <div class="wf-header-row">
+      <h2 class="wf-title" id="wf-title">Delay Repay coverage: from 39% to 39% of disrupted journeys</h2>
+      <a href="#" class="wf-export-link" id="wf-export-link">Export to PDF ⤓</a>
+    </div>
     <p class="wf-subtitle" id="wf-subtitle">From 2.06M trips covered today toward the 3.90M industry ceiling.</p>
 
     <div class="wf-stats-row">
@@ -479,12 +496,12 @@
         <div class="wf-stat-sub">today, no initiatives</div>
       </div>
       <div class="wf-stat lift">
-        <div class="wf-stat-label">AutoFMT</div>
+        <div class="wf-stat-label">Increase Location</div>
         <div class="wf-stat-value" id="wf-init1-value">+0.00M</div>
         <div class="wf-stat-sub" id="wf-init1-sub">abs diff: +0% · rel diff: +0%</div>
       </div>
       <div class="wf-stat lift">
-        <div class="wf-stat-label">Increase Location</div>
+        <div class="wf-stat-label">AutoFMT</div>
         <div class="wf-stat-value" id="wf-init2-value">+0.00M</div>
         <div class="wf-stat-sub" id="wf-init2-sub">abs diff: +0% · rel diff: +0%</div>
       </div>
@@ -510,11 +527,11 @@
           </div>
           <div class="wf-bar-col">
             <div class="wf-bar lift" id="bar-init1"><div class="wf-bar-value" id="val-init1">+0.00M</div></div>
-            <div class="wf-bar-label">AutoFMT</div>
+            <div class="wf-bar-label">Increase Location</div>
           </div>
           <div class="wf-bar-col">
             <div class="wf-bar lift" id="bar-init2"><div class="wf-bar-value" id="val-init2">+0.00M</div></div>
-            <div class="wf-bar-label">Increase Location</div>
+            <div class="wf-bar-label">AutoFMT</div>
           </div>
           <div class="wf-bar-col">
             <div class="wf-bar lift" id="bar-init3"><div class="wf-bar-value" id="val-init3">+0.00M</div></div>
@@ -781,9 +798,9 @@ function render(){
   function fmtM(n){ return (n/1000000).toFixed(2) + 'M'; }
 
   const covered0 = B.totalResolved + nonFlexTrips * BASE.nonFlexCoverage; // baseline, all initiatives off
-  const p1 = { ...baselineForDelta, swapAppAnother: rawParams.swapAppAnother };
+  const p1 = { ...baselineForDelta, locationApp: rawParams.locationApp };
   const covered1 = compute(p1).totalResolved + nonFlexTrips * BASE.nonFlexCoverage;
-  const p2 = { ...p1, locationApp: rawParams.locationApp };
+  const p2 = { ...p1, swapAppAnother: rawParams.swapAppAnother };
   const covered2 = compute(p2).totalResolved + nonFlexTrips * BASE.nonFlexCoverage;
   const covered3 = industryCovered; // Exit = full current scenario, matches the coverage box above
 
@@ -904,6 +921,14 @@ window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(fitTree, 120);
 });
+
+const exportLink = document.getElementById('wf-export-link');
+if(exportLink){
+  exportLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.print();
+  });
+}
 </script>
 </body>
 </html>
