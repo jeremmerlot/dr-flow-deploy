@@ -296,10 +296,11 @@
   }
   .waterfall-inner{ padding: 24px clamp(16px,3vw,28px) 28px; }
   .wf-header-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .wf-export-group{ display:flex; gap:8px; flex:none; margin-top:4px; }
   .wf-export-link{
     flex:none; font-family:'IBM Plex Mono'; font-size:12.5px; font-weight:600; color:#4b4a9e;
     text-decoration:none; border:1px solid #cfc9f0; border-radius:8px; padding:7px 12px;
-    white-space:nowrap; margin-top:4px; transition: background .15s ease, color .15s ease;
+    white-space:nowrap; transition: background .15s ease, color .15s ease;
   }
   .wf-export-link:hover{ background:#eceafb; color:#1b1464; }
 
@@ -307,7 +308,7 @@
     body *{ visibility:hidden; }
     .waterfall-section, .waterfall-section *{ visibility:visible; }
     .waterfall-section{ position:absolute; left:0; top:0; width:100%; border:none; box-shadow:none; }
-    .wf-export-link{ display:none; }
+    .wf-export-link, .wf-export-group{ display:none; }
   }
   .wf-title{
     font-family:'Space Grotesk', sans-serif; font-weight:700; color:#1b1464;
@@ -374,6 +375,7 @@
   .wf-footnote a{ color:#4b4a9e; text-decoration:underline; }
   .wf-footnote a:hover{ color:#1b1464; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgenjs.bundle.js"></script>
 </head>
 <body>
 <div class="page">
@@ -485,7 +487,10 @@
   <div class="waterfall-inner">
     <div class="wf-header-row">
       <h2 class="wf-title" id="wf-title">Delay Repay coverage: from 39% to 39% of disrupted journeys</h2>
-      <a href="#" class="wf-export-link" id="wf-export-link">Export to PDF ⤓</a>
+      <div class="wf-export-group">
+        <a href="#" class="wf-export-link" id="wf-export-link">Export to PDF ⤓</a>
+        <a href="#" class="wf-export-link" id="wf-export-pptx-link">Export to PPTX ⤓</a>
+      </div>
     </div>
     <p class="wf-subtitle" id="wf-subtitle">From 2.06M trips covered today toward the 3.90M industry ceiling.</p>
 
@@ -826,6 +831,14 @@ function render(){
   set('wf-ceiling-label', 'Total Delayed Trips according to the Industry — ' + fmtM(industryTotal));
 
   const maxScale = Math.ceil((industryTotal * 1.15) / 500000) * 500000;
+
+  window.__wfData = {
+    title: document.getElementById('wf-title') ? document.getElementById('wf-title').textContent : '',
+    subtitle: document.getElementById('wf-subtitle') ? document.getElementById('wf-subtitle').textContent : '',
+    covered0, incLocation: inc1, incAutoFMT: inc2, incGuest: inc3, covered3, industryTotal, maxScale,
+    fmtM
+  };
+
   const bars = [
     { bar:'bar-baseline', val:'val-baseline', bottom:0, height:covered0, text:fmtM(covered0) },
     { bar:'bar-init1', val:'val-init1', bottom:covered0, height:inc1, text:'+' + fmtM(inc1) },
@@ -928,6 +941,94 @@ if(exportLink){
     e.preventDefault();
     window.print();
   });
+}
+
+const exportPptxLink = document.getElementById('wf-export-pptx-link');
+if(exportPptxLink){
+  exportPptxLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    buildPptx();
+  });
+}
+
+function buildPptx(){
+  const d = window.__wfData;
+  if(!d || typeof PptxGenJS === 'undefined'){
+    alert('Export library did not load — check your internet connection and try again.');
+    return;
+  }
+  const NAVY = '1B1464', MINT = '4FD1A5', RED = 'E0483E', MUTED = '9694B8', LABEL = '5B5A86', LIFTLABEL = '2F7D63';
+  const pptx = new PptxGenJS();
+  pptx.defineLayout({ name:'WIDE', width:13.33, height:7.5 });
+  pptx.layout = 'WIDE';
+  const slide = pptx.addSlide();
+  slide.background = { color:'FFFFFF' };
+
+  slide.addText(d.title, { x:0.4, y:0.28, w:12.5, h:0.6, fontSize:24, bold:true, color:NAVY, fontFace:'Arial' });
+  slide.addText(d.subtitle, { x:0.4, y:0.85, w:12.5, h:0.45, fontSize:12.5, color:'4B4A78', fontFace:'Arial' });
+
+  // stat boxes
+  const covered1 = d.covered0 + d.incLocation;
+  const covered2 = covered1 + d.incAutoFMT;
+  const statBoxes = [
+    { label:'Baseline', value:d.fmtM(d.covered0), sub:'today, no initiatives', lift:false },
+    { label:'Increase Location', value:'+' + d.fmtM(d.incLocation), sub:'abs diff: +' + (d.covered0 ? (d.incLocation/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (d.incLocation/d.industryTotal*100).toFixed(0) + '%', lift:true },
+    { label:'AutoFMT', value:'+' + d.fmtM(d.incAutoFMT), sub:'abs diff: +' + (d.covered0 ? (d.incAutoFMT/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (d.incAutoFMT/d.industryTotal*100).toFixed(0) + '%', lift:true },
+    { label:'Unlock DR for Guest', value:'+' + d.fmtM(d.incGuest), sub:'abs diff: +' + (d.covered0 ? (d.incGuest/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (d.incGuest/d.industryTotal*100).toFixed(0) + '%', lift:true },
+    { label:'Exit', value:d.fmtM(d.covered3), sub:'+' + (d.covered0 ? ((d.covered3-d.covered0)/d.covered0*100).toFixed(0) : 0) + '% reach', lift:false },
+  ];
+  const boxW = 2.36, boxGap = 0.12, boxY = 1.5, boxH = 1.05;
+  statBoxes.forEach((b, i) => {
+    const x = 0.4 + i * (boxW + boxGap);
+    slide.addShape(pptx.ShapeType.roundRect, { x, y:boxY, w:boxW, h:boxH, rectRadius:0.06,
+      fill:{ color: b.lift ? 'E3F9F1' : 'ECEAFB' }, line:{ color: b.lift ? 'BDEEDA' : 'CFC9F0', width:1 } });
+    slide.addText(b.label, { x:x+0.12, y:boxY+0.08, w:boxW-0.24, h:0.28, fontSize:10.5, color: b.lift ? LIFTLABEL : LABEL, fontFace:'Arial' });
+    slide.addText(b.value, { x:x+0.12, y:boxY+0.34, w:boxW-0.24, h:0.42, fontSize:18, bold:true, color: b.lift ? '1A9C74' : NAVY, fontFace:'Arial' });
+    slide.addText(b.sub, { x:x+0.12, y:boxY+0.78, w:boxW-0.24, h:0.22, fontSize:8.5, color: b.lift ? '3F9D81' : MUTED, fontFace:'Courier New' });
+  });
+
+  // chart area
+  const chartX = 1.05, chartY = 2.95, chartW = 11.6, chartH = 3.55;
+  const chartBottom = chartY + chartH;
+  const bars = [
+    { label:'Baseline', bottom:0, height:d.covered0, text:d.fmtM(d.covered0), full:true },
+    { label:'Increase Location', bottom:d.covered0, height:d.incLocation, text:'+' + d.fmtM(d.incLocation), full:false },
+    { label:'AutoFMT', bottom:covered1, height:d.incAutoFMT, text:'+' + d.fmtM(d.incAutoFMT), full:false },
+    { label:'Unlock DR for Guest', bottom:covered2, height:d.incGuest, text:'+' + d.fmtM(d.incGuest), full:false },
+    { label:'Exit', bottom:0, height:d.covered3, text:d.fmtM(d.covered3), full:true },
+  ];
+  const colW = chartW / bars.length;
+  const barW = colW * 0.62;
+
+  // ceiling dashed line
+  const ceilingY = chartBottom - (d.industryTotal / d.maxScale) * chartH;
+  slide.addShape(pptx.ShapeType.line, { x:chartX, y:ceilingY, w:chartW, h:0, line:{ color:RED, width:1.5, dashType:'dash' } });
+  slide.addText('Total Delayed Trips according to the Industry — ' + d.fmtM(d.industryTotal), {
+    x:chartX, y:ceilingY-0.28, w:chartW, h:0.24, align:'right', fontSize:10.5, bold:true, color:RED, fontFace:'Courier New'
+  });
+
+  // axis baseline
+  slide.addShape(pptx.ShapeType.line, { x:chartX, y:chartBottom, w:chartW, h:0, line:{ color:'E5E7EB', width:1 } });
+
+  bars.forEach((b, i) => {
+    const colX = chartX + i * colW + (colW - barW) / 2;
+    const hIn = Math.max(0.03, (b.height / d.maxScale) * chartH);
+    const bottomIn = (b.bottom / d.maxScale) * chartH;
+    const yTop = chartBottom - bottomIn - hIn;
+    slide.addShape(pptx.ShapeType.rect, { x:colX, y:yTop, w:barW, h:hIn, fill:{ color: b.full ? NAVY : MINT }, line:{ type:'none' } });
+    slide.addText(b.text, { x:colX-0.2, y:yTop-0.3, w:barW+0.4, h:0.26, align:'center', fontSize:11, bold:true, color: b.full ? NAVY : '1A9C74', fontFace:'Courier New' });
+    slide.addText(b.label, { x:chartX + i*colW, y:chartBottom+0.08, w:colW, h:0.4, align:'center', fontSize:10, color:LABEL, fontFace:'Arial' });
+  });
+
+  // footnote with hyperlink
+  slide.addText([
+    { text:'Source: ', options:{ color:MUTED, fontSize:9, fontFace:'Courier New' } },
+    { text:'Product Mart Dashboard', options:{ color:'4B4A9E', fontSize:9, underline:true, fontFace:'Courier New',
+      hyperlink:{ url:'https://prod-uk-a.online.tableau.com/#/site/bicloud/views/ProductDashboard/ProductWorkspace?:iid=1' } } },
+    { text:' — Delay Repay Compensation, 01/01/2026 – 28/06/2026.', options:{ color:MUTED, fontSize:9, fontFace:'Courier New' } },
+  ], { x:0.4, y:7.05, w:12.5, h:0.3 });
+
+  pptx.writeFile({ fileName:'delay-repay-coverage-waterfall.pptx' });
 }
 </script>
 </body>
