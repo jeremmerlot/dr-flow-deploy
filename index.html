@@ -829,14 +829,14 @@ function render(){
   set('wf-title', 'Increase Delay Repay coverage by ' + (covered0 === 0 ? 0 : Math.round(((covered3 - covered0) / covered0) * 100)) + '%. Initiatives breakdown:');
   set('wf-subtitle', 'From ' + fmtM(covered0) + ' trips covered today toward the ' + fmtM(industryTotal) + ' industry ceiling — reaching ' + fmtM(covered3) + ' with the initiatives selected below.');
 
-  set('wf-baseline-value', fmtM(covered0));
-  set('wf-guest-value', '+' + fmtM(incGuest));
-  set('wf-guest-sub', 'abs diff: +' + absDiff(incGuest).toFixed(0) + '% · rel diff: +' + relDiff(incGuest).toFixed(0) + '%');
-  set('wf-loc-value', '+' + fmtM(incLoc));
-  set('wf-loc-sub', 'abs diff: +' + absDiff(incLoc).toFixed(0) + '% · rel diff: +' + relDiff(incLoc).toFixed(0) + '%');
-  set('wf-swap-value', '+' + fmtM(incSwap));
-  set('wf-swap-sub', 'abs diff: +' + absDiff(incSwap).toFixed(0) + '% · rel diff: +' + relDiff(incSwap).toFixed(0) + '%');
-  set('wf-exit-value', fmtM(covered3));
+  set('wf-baseline-value', fmtP(covered0));
+  set('wf-guest-value', '+' + fmtP(incGuest));
+  set('wf-guest-sub', '+' + absDiff(incGuest).toFixed(0) + '% vs baseline');
+  set('wf-loc-value', '+' + fmtP(incLoc));
+  set('wf-loc-sub', '+' + absDiff(incLoc).toFixed(0) + '% vs baseline');
+  set('wf-swap-value', '+' + fmtP(incSwap));
+  set('wf-swap-sub', '+' + absDiff(incSwap).toFixed(0) + '% vs baseline');
+  set('wf-exit-value', fmtP(covered3));
   set('wf-exit-sub', (covered0 === 0 ? '+0' : '+' + (((covered3-covered0)/covered0)*100).toFixed(0)) + '% reach');
   set('wf-ceiling-label', 'Total Delayed Trips according to the Industry — 100% (' + fmtM(industryTotal) + ')');
 
@@ -981,14 +981,14 @@ function buildPptx(){
   const covered1 = d.covered0 + d.incGuest;
   const covered2 = covered1 + d.incLoc;
   function sub(inc){
-    return 'abs diff: +' + (d.covered0 ? (inc/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (inc/d.industryTotal*100).toFixed(0) + '%';
+    return '+' + (d.covered0 ? (inc/d.covered0*100).toFixed(0) : 0) + '% vs baseline';
   }
   const statBoxes = [
-    { label:'Baseline', value:d.fmtM(d.covered0), sub:'today, no initiatives', lift:false },
-    { label:'Unlock DR for Guest', value:'+' + d.fmtM(d.incGuest), sub:sub(d.incGuest), lift:true },
-    { label:'Increase Location', value:'+' + d.fmtM(d.incLoc), sub:sub(d.incLoc), lift:true },
-    { label:'AutoTrainSwap', value:'+' + d.fmtM(d.incSwap), sub:sub(d.incSwap), lift:true },
-    { label:'Exit', value:d.fmtM(d.covered3), sub:'+' + (d.covered0 ? ((d.covered3-d.covered0)/d.covered0*100).toFixed(0) : 0) + '% reach', lift:false },
+    { label:'Baseline', value:d.fmtP(d.covered0), sub:'today, no initiatives', lift:false },
+    { label:'Unlock DR for Guest', value:'+' + d.fmtP(d.incGuest), sub:sub(d.incGuest), lift:true },
+    { label:'Increase Location', value:'+' + d.fmtP(d.incLoc), sub:sub(d.incLoc), lift:true },
+    { label:'AutoTrainSwap', value:'+' + d.fmtP(d.incSwap), sub:sub(d.incSwap), lift:true },
+    { label:'Exit', value:d.fmtP(d.covered3), sub:'+' + (d.covered0 ? ((d.covered3-d.covered0)/d.covered0*100).toFixed(0) : 0) + '% reach', lift:false },
   ];
   const boxW = 2.36, boxGap = 0.12, boxY = 1.5, boxH = 1.05;
   statBoxes.forEach((b, i) => {
