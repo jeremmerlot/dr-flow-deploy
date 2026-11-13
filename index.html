@@ -805,6 +805,8 @@ function render(){
   // ---- Waterfall: Baseline -> Guest -> Location -> AutoTrainSwap -> Exit ----
   // Cumulative, in delivery order: Guest first, then Location and AutoTrainSwap build on it.
   function fmtM(n){ return (n/1000000).toFixed(2) + 'M'; }
+  // chart values are shown as a share of all delayed trips (industry total)
+  function fmtP(n){ return (industryTotal === 0 ? 0 : n / industryTotal * 100).toFixed(1) + '%'; }
 
   const covered0 = B.totalResolved + nonFlexTrips * BASE.nonFlexCoverage; // baseline, all initiatives off
 
@@ -836,7 +838,7 @@ function render(){
   set('wf-swap-sub', 'abs diff: +' + absDiff(incSwap).toFixed(0) + '% · rel diff: +' + relDiff(incSwap).toFixed(0) + '%');
   set('wf-exit-value', fmtM(covered3));
   set('wf-exit-sub', (covered0 === 0 ? '+0' : '+' + (((covered3-covered0)/covered0)*100).toFixed(0)) + '% reach');
-  set('wf-ceiling-label', 'Total Delayed Trips according to the Industry — ' + fmtM(industryTotal));
+  set('wf-ceiling-label', 'Total Delayed Trips according to the Industry — 100% (' + fmtM(industryTotal) + ')');
 
   const maxScale = Math.ceil((industryTotal * 1.15) / 500000) * 500000;
 
@@ -844,15 +846,15 @@ function render(){
     title: document.getElementById('wf-title') ? document.getElementById('wf-title').textContent : '',
     subtitle: document.getElementById('wf-subtitle') ? document.getElementById('wf-subtitle').textContent : '',
     covered0, incGuest, incLoc, incSwap, covered3, industryTotal, maxScale,
-    fmtM
+    fmtM, fmtP
   };
 
   const bars = [
-    { bar:'bar-baseline', val:'val-baseline', bottom:0, height:covered0, text:fmtM(covered0) },
-    { bar:'bar-guest', val:'val-guest', bottom:covered0, height:incGuest, text:'+' + fmtM(incGuest) },
-    { bar:'bar-loc', val:'val-loc', bottom:covered1, height:incLoc, text:'+' + fmtM(incLoc) },
-    { bar:'bar-swap', val:'val-swap', bottom:covered2, height:incSwap, text:'+' + fmtM(incSwap) },
-    { bar:'bar-exit', val:'val-exit', bottom:0, height:covered3, text:fmtM(covered3) },
+    { bar:'bar-baseline', val:'val-baseline', bottom:0, height:covered0, text:fmtP(covered0) },
+    { bar:'bar-guest', val:'val-guest', bottom:covered0, height:incGuest, text:'+' + fmtP(incGuest) },
+    { bar:'bar-loc', val:'val-loc', bottom:covered1, height:incLoc, text:'+' + fmtP(incLoc) },
+    { bar:'bar-swap', val:'val-swap', bottom:covered2, height:incSwap, text:'+' + fmtP(incSwap) },
+    { bar:'bar-exit', val:'val-exit', bottom:0, height:covered3, text:fmtP(covered3) },
   ];
   bars.forEach(b => {
     const barEl = document.getElementById(b.bar);
@@ -1002,11 +1004,11 @@ function buildPptx(){
   const chartX = 1.05, chartY = 2.95, chartW = 11.6, chartH = 3.55;
   const chartBottom = chartY + chartH;
   const bars = [
-    { label:'Baseline', bottom:0, height:d.covered0, text:d.fmtM(d.covered0), full:true },
-    { label:'Unlock DR for Guest', bottom:d.covered0, height:d.incGuest, text:'+' + d.fmtM(d.incGuest), full:false },
-    { label:'Increase Location', bottom:covered1, height:d.incLoc, text:'+' + d.fmtM(d.incLoc), full:false },
-    { label:'AutoTrainSwap', bottom:covered2, height:d.incSwap, text:'+' + d.fmtM(d.incSwap), full:false },
-    { label:'Exit', bottom:0, height:d.covered3, text:d.fmtM(d.covered3), full:true },
+    { label:'Baseline', bottom:0, height:d.covered0, text:d.fmtP(d.covered0), full:true },
+    { label:'Unlock DR for Guest', bottom:d.covered0, height:d.incGuest, text:'+' + d.fmtP(d.incGuest), full:false },
+    { label:'Increase Location', bottom:covered1, height:d.incLoc, text:'+' + d.fmtP(d.incLoc), full:false },
+    { label:'AutoTrainSwap', bottom:covered2, height:d.incSwap, text:'+' + d.fmtP(d.incSwap), full:false },
+    { label:'Exit', bottom:0, height:d.covered3, text:d.fmtP(d.covered3), full:true },
   ];
   const colW = chartW / bars.length;
   const barW = colW * 0.62;
@@ -1014,7 +1016,7 @@ function buildPptx(){
   // ceiling dashed line
   const ceilingY = chartBottom - (d.industryTotal / d.maxScale) * chartH;
   slide.addShape(pptx.ShapeType.line, { x:chartX, y:ceilingY, w:chartW, h:0, line:{ color:RED, width:1.5, dashType:'dash' } });
-  slide.addText('Total Delayed Trips according to the Industry — ' + d.fmtM(d.industryTotal), {
+  slide.addText('Total Delayed Trips according to the Industry — 100% (' + d.fmtM(d.industryTotal) + ')', {
     x:chartX, y:ceilingY-0.28, w:chartW, h:0.24, align:'right', fontSize:10.5, bold:true, color:RED, fontFace:'Courier New'
   });
 
