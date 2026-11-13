@@ -371,7 +371,8 @@
     font-family:'IBM Plex Sans'; font-size:12.5px; color:#5b5a86; line-height:1.3;
   }
   .wf-bar-col-labels{ position:relative; height:0; }
-  .wf-footnote{ font-family:'IBM Plex Mono'; font-size:11.5px; color:#9694b8; margin-top:34px; }
+  .wf-footnote{ font-family:'IBM Plex Mono'; font-size:11.5px; color:#9694b8; margin-top:64px; }
+  .wf-footnote + .wf-footnote{ margin-top:6px; }
   .wf-footnote a{ color:#4b4a9e; text-decoration:underline; }
   .wf-footnote a:hover{ color:#1b1464; }
 </style>
@@ -403,26 +404,20 @@
   <h2 style="margin-bottom:18px;">Scenario controls</h2>
 
   <div class="init-row">
-    <div class="init-card" id="card-init1">
+    <div class="init-card" id="card-guest">
       <div class="init-head">
-        <div class="init-title"><span class="tag">Initiative 1</span>Auto‑Train Swap × Auto‑FMT</div>
-        <label class="switch"><input type="checkbox" id="toggle-init1"><span class="slider-track"></span></label>
+        <div class="init-title"><span class="tag">Initiative 1</span>Let guests see Delay Repay components</div>
+        <label class="switch"><input type="checkbox" id="toggle-guest"><span class="slider-track"></span></label>
       </div>
-      <div class="init-desc">Auto‑detects the actual train a flexible‑ticket holder is on and swaps it without manual input. Only viable where location is already known — i.e. the "While using app" branch — so it does not change the Denied‑location segments below.</div>
-
-      <div class="field">
-        <label>Auto‑Train Swap Coverage <b id="lbl-swapApp">0%</b></label>
-        <input type="range" id="slider-swapAppAnother" min="0" max="100" value="0" step="1">
-        <div class="field-caption" id="cap-swapApp">0% today — no change</div>
-      </div>
+      <div class="init-desc">Guests aren't currently prompted for Delay Repay at all — no matter their ticket type. Work is planned in FY27 Q2 to open Delay Repay to guests, routing them through the same location‑based flow as logged‑in users. This also closes the guest gap on Advance tickets, raising their coverage from 80% to 100%. Delivered first: the two initiatives below build on it.</div>
     </div>
 
-    <div class="init-card" id="card-init2">
+    <div class="init-card" id="card-loc">
       <div class="init-head">
         <div class="init-title"><span class="tag">Initiative 2</span>Increase "While using app" share</div>
-        <label class="switch"><input type="checkbox" id="toggle-init2"><span class="slider-track"></span></label>
+        <label class="switch"><input type="checkbox" id="toggle-loc"><span class="slider-track"></span></label>
       </div>
-      <div class="init-desc">Better permission prompt timing &amp; copy reduces the 33% who deny location — growing the addressable audience for Auto‑FMT and SignalBox checks.</div>
+      <div class="init-desc">Better permission prompt timing &amp; copy reduces the 33% who deny location — growing the addressable audience for AutoTrainSwap and SignalBox checks.</div>
 
       <div class="field">
         <label>"While using the app" share <b id="lbl-locationApp">67%</b></label>
@@ -431,12 +426,18 @@
       </div>
     </div>
 
-    <div class="init-card" id="card-init3">
+    <div class="init-card" id="card-swap">
       <div class="init-head">
-        <div class="init-title"><span class="tag">Initiative 3</span>Let guests see Delay Repay components</div>
-        <label class="switch"><input type="checkbox" id="toggle-init3"><span class="slider-track"></span></label>
+        <div class="init-title"><span class="tag">Initiative 3</span>AutoTrainSwap</div>
+        <label class="switch"><input type="checkbox" id="toggle-swap"><span class="slider-track"></span></label>
       </div>
-      <div class="init-desc">Guests aren't currently prompted for Delay Repay at all — no matter their ticket type. Work is planned in FY27 Q2 to open Delay Repay to guests, routing them through the same location‑based flow as logged‑in users. This also closes the guest gap on Advance tickets, raising their coverage from 80% to 100%.</div>
+      <div class="init-desc">Auto‑detects the actual train a flexible‑ticket holder is on and swaps it without manual input. Only viable where location is already known — i.e. the "While using app" branch — so it does not change the Denied‑location segments below.</div>
+
+      <div class="field">
+        <label>AutoTrainSwap Coverage <b id="lbl-swapApp">0%</b></label>
+        <input type="range" id="slider-swapAppAnother" min="0" max="100" value="0" step="1">
+        <div class="field-caption" id="cap-swapApp">0% today — no change</div>
+      </div>
     </div>
   </div>
 
@@ -475,7 +476,7 @@
         <label>Non‑flexible tickets already covered</label>
         <div class="input-suffix"><input type="number" id="input-nonFlexCoverage" min="0" max="100" step="1" value="80"><span>%</span></div>
       </div>
-      <div class="advanced-note">The two "manual" rates above are unaffected by either initiative (location isn't known there). Non‑flexible coverage moves with Initiative 3 (guest gap closes on Advance tickets too), but all fields stay manually adjustable.</div>
+      <div class="advanced-note">The two "manual" rates above are unaffected by the initiatives (location isn't known there). Non‑flexible coverage moves with Initiative 1 (guest gap closes on Advance tickets too), but all fields stay manually adjustable.</div>
     </div>
   </details>
 
@@ -487,7 +488,7 @@
 <div class="waterfall-section">
   <div class="waterfall-inner">
     <div class="wf-header-row">
-      <h2 class="wf-title" id="wf-title">Delay Repay coverage: from 39% to 39% of disrupted journeys</h2>
+      <h2 class="wf-title" id="wf-title">Increase Delay Repay coverage by 0%. Initiatives breakdown:</h2>
       <div class="wf-export-group">
         <a href="#" class="wf-export-link" id="wf-export-link">Export to PDF ⤓</a>
         <a href="#" class="wf-export-link" id="wf-export-pptx-link">Export to PPTX ⤓</a>
@@ -502,19 +503,19 @@
         <div class="wf-stat-sub">today, no initiatives</div>
       </div>
       <div class="wf-stat lift">
-        <div class="wf-stat-label">Increase Location</div>
-        <div class="wf-stat-value" id="wf-init1-value">+0.00M</div>
-        <div class="wf-stat-sub" id="wf-init1-sub">abs diff: +0% · rel diff: +0%</div>
-      </div>
-      <div class="wf-stat lift">
-        <div class="wf-stat-label">AutoFMT</div>
-        <div class="wf-stat-value" id="wf-init2-value">+0.00M</div>
-        <div class="wf-stat-sub" id="wf-init2-sub">abs diff: +0% · rel diff: +0%</div>
-      </div>
-      <div class="wf-stat lift">
         <div class="wf-stat-label">Unlock DR for Guest</div>
-        <div class="wf-stat-value" id="wf-init3-value">+0.00M</div>
-        <div class="wf-stat-sub" id="wf-init3-sub">abs diff: +0% · rel diff: +0%</div>
+        <div class="wf-stat-value" id="wf-guest-value">+0.00M</div>
+        <div class="wf-stat-sub" id="wf-guest-sub">abs diff: +0% · rel diff: +0%</div>
+      </div>
+      <div class="wf-stat lift">
+        <div class="wf-stat-label">Increase Location</div>
+        <div class="wf-stat-value" id="wf-loc-value">+0.00M</div>
+        <div class="wf-stat-sub" id="wf-loc-sub">abs diff: +0% · rel diff: +0%</div>
+      </div>
+      <div class="wf-stat lift">
+        <div class="wf-stat-label">AutoTrainSwap</div>
+        <div class="wf-stat-value" id="wf-swap-value">+0.00M</div>
+        <div class="wf-stat-sub" id="wf-swap-sub">abs diff: +0% · rel diff: +0%</div>
       </div>
       <div class="wf-stat exit">
         <div class="wf-stat-label">Exit</div>
@@ -532,16 +533,16 @@
             <div class="wf-bar-label">Baseline</div>
           </div>
           <div class="wf-bar-col">
-            <div class="wf-bar lift" id="bar-init1"><div class="wf-bar-value" id="val-init1">+0.00M</div></div>
+            <div class="wf-bar lift" id="bar-guest"><div class="wf-bar-value" id="val-guest">+0.00M</div></div>
+            <div class="wf-bar-label">Unlock DR<br>for Guest</div>
+          </div>
+          <div class="wf-bar-col">
+            <div class="wf-bar lift" id="bar-loc"><div class="wf-bar-value" id="val-loc">+0.00M</div></div>
             <div class="wf-bar-label">Increase Location</div>
           </div>
           <div class="wf-bar-col">
-            <div class="wf-bar lift" id="bar-init2"><div class="wf-bar-value" id="val-init2">+0.00M</div></div>
-            <div class="wf-bar-label">AutoFMT</div>
-          </div>
-          <div class="wf-bar-col">
-            <div class="wf-bar lift" id="bar-init3"><div class="wf-bar-value" id="val-init3">+0.00M</div></div>
-            <div class="wf-bar-label">Unlock DR<br>for Guest</div>
+            <div class="wf-bar lift" id="bar-swap"><div class="wf-bar-value" id="val-swap">+0.00M</div></div>
+            <div class="wf-bar-label">AutoTrainSwap</div>
           </div>
           <div class="wf-bar-col">
             <div class="wf-bar full" id="bar-exit"><div class="wf-bar-value" id="val-exit">2.06M</div></div>
@@ -551,6 +552,7 @@
       </div>
     </div>
     <div class="wf-footnote">Source: <a href="https://prod-uk-a.online.tableau.com/#/site/bicloud/views/ProductDashboard/ProductWorkspace?:iid=1" target="_blank" rel="noopener noreferrer">Product Mart Dashboard</a> — Delay Repay Compensation, 01/01/2026 – 28/06/2026.</div>
+    <div class="wf-footnote">Cumulative view: Guest is delivered first; Increase Location and AutoTrainSwap are measured on top of it, so they include the guest trips.</div>
   </div>
 </div>
 
@@ -587,7 +589,7 @@
                       <li>
                         <div class="node neutral"><span class="t">Travelling on another train</span><span class="v" id="v-appAnother">497,475</span><span class="p" id="p-appAnother">45%</span></div>
                         <ul>
-                          <li><div class="node resolved"><span class="t">Auto Train‑Swap done</span><span class="v" id="v-appAnotherResolved">0</span><span class="p" id="p-appAnotherResolved">0%</span></div></li>
+                          <li><div class="node resolved"><span class="t">AutoTrainSwap done</span><span class="v" id="v-appAnotherResolved">0</span><span class="p" id="p-appAnotherResolved">0%</span></div></li>
                           <li><div class="node noaction"><span class="t">No action</span><span class="v" id="v-appAnotherNoAction">497,475</span><span class="p" id="p-appAnotherNoAction">100%</span></div></li>
                         </ul>
                       </li>
@@ -635,17 +637,17 @@ const BASE = {
   industryTotal: 3900000, nonFlexCoverage: 0.80
 };
 
-const INIT1_TARGET = { swapAppAnother: 0.80 };
-const INIT2_TARGET = { locationApp: 0.78 };
-const INIT3_TARGET = { nonFlexCoverage: 1.00 };
+const SWAP_TARGET = { swapAppAnother: 0.80 };
+const LOC_TARGET = { locationApp: 0.78 };
+const GUEST_TARGET = { nonFlexCoverage: 1.00 };
 
 const els = {
-  toggle1: document.getElementById('toggle-init1'),
-  toggle2: document.getElementById('toggle-init2'),
-  toggle3: document.getElementById('toggle-init3'),
-  card1: document.getElementById('card-init1'),
-  card2: document.getElementById('card-init2'),
-  card3: document.getElementById('card-init3'),
+  toggleGuest: document.getElementById('toggle-guest'),
+  toggleLoc: document.getElementById('toggle-loc'),
+  toggleSwap: document.getElementById('toggle-swap'),
+  cardGuest: document.getElementById('card-guest'),
+  cardLoc: document.getElementById('card-loc'),
+  cardSwap: document.getElementById('card-swap'),
   swapApp: document.getElementById('slider-swapAppAnother'),
   confirmDenied: document.getElementById('input-confirmDenied'),
   swapDenied: document.getElementById('input-swapDenied'),
@@ -720,7 +722,7 @@ function render(){
   [els.swapApp, els.locationApp].forEach(fillTrack);
 
   const rawParams = readParams();
-  const guestOn = els.toggle3.checked;
+  const guestOn = els.toggleGuest.checked;
   const scenario = { ...rawParams, guest: guestOn ? 0 : rawParams.guest };
   const S = compute(scenario);
   const baselineForDelta = { ...rawParams,
@@ -800,33 +802,38 @@ function render(){
   const flexSub = document.querySelector('.coverage-item:nth-child(1) .sub-label');
   if(flexSub) flexSub.textContent = 'of all ' + fmt(S.total) + ' delayed flexible‑ticket trips modelled';
 
-  // ---- Waterfall: Baseline -> Initiative 1 -> Initiative 2 -> Initiative 3 -> Exit ----
+  // ---- Waterfall: Baseline -> Guest -> Location -> AutoTrainSwap -> Exit ----
+  // Cumulative, in delivery order: Guest first, then Location and AutoTrainSwap build on it.
   function fmtM(n){ return (n/1000000).toFixed(2) + 'M'; }
 
   const covered0 = B.totalResolved + nonFlexTrips * BASE.nonFlexCoverage; // baseline, all initiatives off
-  const p1 = { ...baselineForDelta, locationApp: rawParams.locationApp };
-  const covered1 = compute(p1).totalResolved + nonFlexTrips * BASE.nonFlexCoverage;
-  const p2 = { ...p1, swapAppAnother: rawParams.swapAppAnother };
-  const covered2 = compute(p2).totalResolved + nonFlexTrips * BASE.nonFlexCoverage;
-  const covered3 = industryCovered; // Exit = full current scenario, matches the coverage box above
 
-  const inc1 = Math.max(0, covered1 - covered0);
-  const inc2 = Math.max(0, covered2 - covered1);
-  const inc3 = Math.max(0, covered3 - covered2);
+  // Step 1: Guest (guests enter the flow; non-flex coverage per advanced input)
+  const pGuest = { ...baselineForDelta, guest: scenario.guest };
+  const covered1 = compute(pGuest).totalResolved + nonFlexCovered;
+  // Step 2: + Increase Location, on top of Guest
+  const pLoc = { ...pGuest, locationApp: rawParams.locationApp };
+  const covered2 = compute(pLoc).totalResolved + nonFlexCovered;
+  // Step 3: + AutoTrainSwap, on top of both = full scenario (matches the coverage box above)
+  const covered3 = industryCovered;
+
+  const incGuest = Math.max(0, covered1 - covered0);
+  const incLoc = Math.max(0, covered2 - covered1);
+  const incSwap = Math.max(0, covered3 - covered2);
 
   function absDiff(inc){ return covered0 === 0 ? 0 : (inc / covered0) * 100; }
   function relDiff(inc){ return industryTotal === 0 ? 0 : (inc / industryTotal) * 100; }
 
-  set('wf-title', 'Delay Repay coverage: from ' + Math.round(covered0/industryTotal*100) + '% to ' + Math.round(covered3/industryTotal*100) + '% of disrupted journeys');
+  set('wf-title', 'Increase Delay Repay coverage by ' + (covered0 === 0 ? 0 : Math.round(((covered3 - covered0) / covered0) * 100)) + '%. Initiatives breakdown:');
   set('wf-subtitle', 'From ' + fmtM(covered0) + ' trips covered today toward the ' + fmtM(industryTotal) + ' industry ceiling — reaching ' + fmtM(covered3) + ' with the initiatives selected below.');
 
   set('wf-baseline-value', fmtM(covered0));
-  set('wf-init1-value', '+' + fmtM(inc1));
-  set('wf-init1-sub', 'abs diff: +' + absDiff(inc1).toFixed(0) + '% · rel diff: +' + relDiff(inc1).toFixed(0) + '%');
-  set('wf-init2-value', '+' + fmtM(inc2));
-  set('wf-init2-sub', 'abs diff: +' + absDiff(inc2).toFixed(0) + '% · rel diff: +' + relDiff(inc2).toFixed(0) + '%');
-  set('wf-init3-value', '+' + fmtM(inc3));
-  set('wf-init3-sub', 'abs diff: +' + absDiff(inc3).toFixed(0) + '% · rel diff: +' + relDiff(inc3).toFixed(0) + '%');
+  set('wf-guest-value', '+' + fmtM(incGuest));
+  set('wf-guest-sub', 'abs diff: +' + absDiff(incGuest).toFixed(0) + '% · rel diff: +' + relDiff(incGuest).toFixed(0) + '%');
+  set('wf-loc-value', '+' + fmtM(incLoc));
+  set('wf-loc-sub', 'abs diff: +' + absDiff(incLoc).toFixed(0) + '% · rel diff: +' + relDiff(incLoc).toFixed(0) + '%');
+  set('wf-swap-value', '+' + fmtM(incSwap));
+  set('wf-swap-sub', 'abs diff: +' + absDiff(incSwap).toFixed(0) + '% · rel diff: +' + relDiff(incSwap).toFixed(0) + '%');
   set('wf-exit-value', fmtM(covered3));
   set('wf-exit-sub', (covered0 === 0 ? '+0' : '+' + (((covered3-covered0)/covered0)*100).toFixed(0)) + '% reach');
   set('wf-ceiling-label', 'Total Delayed Trips according to the Industry — ' + fmtM(industryTotal));
@@ -836,15 +843,15 @@ function render(){
   window.__wfData = {
     title: document.getElementById('wf-title') ? document.getElementById('wf-title').textContent : '',
     subtitle: document.getElementById('wf-subtitle') ? document.getElementById('wf-subtitle').textContent : '',
-    covered0, incLocation: inc1, incAutoFMT: inc2, incGuest: inc3, covered3, industryTotal, maxScale,
+    covered0, incGuest, incLoc, incSwap, covered3, industryTotal, maxScale,
     fmtM
   };
 
   const bars = [
     { bar:'bar-baseline', val:'val-baseline', bottom:0, height:covered0, text:fmtM(covered0) },
-    { bar:'bar-init1', val:'val-init1', bottom:covered0, height:inc1, text:'+' + fmtM(inc1) },
-    { bar:'bar-init2', val:'val-init2', bottom:covered1, height:inc2, text:'+' + fmtM(inc2) },
-    { bar:'bar-init3', val:'val-init3', bottom:covered2, height:inc3, text:'+' + fmtM(inc3) },
+    { bar:'bar-guest', val:'val-guest', bottom:covered0, height:incGuest, text:'+' + fmtM(incGuest) },
+    { bar:'bar-loc', val:'val-loc', bottom:covered1, height:incLoc, text:'+' + fmtM(incLoc) },
+    { bar:'bar-swap', val:'val-swap', bottom:covered2, height:incSwap, text:'+' + fmtM(incSwap) },
     { bar:'bar-exit', val:'val-exit', bottom:0, height:covered3, text:fmtM(covered3) },
   ];
   bars.forEach(b => {
@@ -865,26 +872,26 @@ function setSliderEnabled(sliders, enabled){
   sliders.forEach(s => s.disabled = !enabled);
 }
 
-els.toggle1.addEventListener('change', () => {
-  const on = els.toggle1.checked;
-  els.card1.classList.toggle('on', on);
-  setSliderEnabled([els.swapApp], on);
-  els.swapApp.value = (on ? INIT1_TARGET.swapAppAnother : BASE.swapAppAnother) * 100;
+els.toggleGuest.addEventListener('change', () => {
+  const on = els.toggleGuest.checked;
+  els.cardGuest.classList.toggle('on', on);
+  els.nonFlexCoverage.value = (on ? GUEST_TARGET.nonFlexCoverage : BASE.nonFlexCoverage) * 100;
   render();
 });
 
-els.toggle2.addEventListener('change', () => {
-  const on = els.toggle2.checked;
-  els.card2.classList.toggle('on', on);
+els.toggleLoc.addEventListener('change', () => {
+  const on = els.toggleLoc.checked;
+  els.cardLoc.classList.toggle('on', on);
   setSliderEnabled([els.locationApp], on);
-  els.locationApp.value = (on ? INIT2_TARGET.locationApp : BASE.locationApp) * 100;
+  els.locationApp.value = (on ? LOC_TARGET.locationApp : BASE.locationApp) * 100;
   render();
 });
 
-els.toggle3.addEventListener('change', () => {
-  const on = els.toggle3.checked;
-  els.card3.classList.toggle('on', on);
-  els.nonFlexCoverage.value = (on ? INIT3_TARGET.nonFlexCoverage : BASE.nonFlexCoverage) * 100;
+els.toggleSwap.addEventListener('change', () => {
+  const on = els.toggleSwap.checked;
+  els.cardSwap.classList.toggle('on', on);
+  setSliderEnabled([els.swapApp], on);
+  els.swapApp.value = (on ? SWAP_TARGET.swapAppAnother : BASE.swapAppAnother) * 100;
   render();
 });
 
@@ -893,8 +900,8 @@ els.toggle3.addEventListener('change', () => {
   // (fillTrack only visually applies to range sliders; number inputs ignore it harmlessly)
 
 els.reset.addEventListener('click', () => {
-  els.toggle1.checked = false; els.toggle2.checked = false; els.toggle3.checked = false;
-  els.card1.classList.remove('on'); els.card2.classList.remove('on'); els.card3.classList.remove('on');
+  els.toggleGuest.checked = false; els.toggleLoc.checked = false; els.toggleSwap.checked = false;
+  els.cardGuest.classList.remove('on'); els.cardLoc.classList.remove('on'); els.cardSwap.classList.remove('on');
   setSliderEnabled([els.swapApp], false);
   setSliderEnabled([els.locationApp], false);
   els.total.value = BASE.total; els.guest.value = BASE.guest*100;
@@ -968,14 +975,17 @@ function buildPptx(){
   slide.addText(d.title, { x:0.4, y:0.28, w:12.5, h:0.6, fontSize:24, bold:true, color:NAVY, fontFace:'Arial' });
   slide.addText(d.subtitle, { x:0.4, y:0.85, w:12.5, h:0.45, fontSize:12.5, color:'4B4A78', fontFace:'Arial' });
 
-  // stat boxes
-  const covered1 = d.covered0 + d.incLocation;
-  const covered2 = covered1 + d.incAutoFMT;
+  // stat boxes (delivery order: Guest, Location, AutoTrainSwap)
+  const covered1 = d.covered0 + d.incGuest;
+  const covered2 = covered1 + d.incLoc;
+  function sub(inc){
+    return 'abs diff: +' + (d.covered0 ? (inc/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (inc/d.industryTotal*100).toFixed(0) + '%';
+  }
   const statBoxes = [
     { label:'Baseline', value:d.fmtM(d.covered0), sub:'today, no initiatives', lift:false },
-    { label:'Increase Location', value:'+' + d.fmtM(d.incLocation), sub:'abs diff: +' + (d.covered0 ? (d.incLocation/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (d.incLocation/d.industryTotal*100).toFixed(0) + '%', lift:true },
-    { label:'AutoFMT', value:'+' + d.fmtM(d.incAutoFMT), sub:'abs diff: +' + (d.covered0 ? (d.incAutoFMT/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (d.incAutoFMT/d.industryTotal*100).toFixed(0) + '%', lift:true },
-    { label:'Unlock DR for Guest', value:'+' + d.fmtM(d.incGuest), sub:'abs diff: +' + (d.covered0 ? (d.incGuest/d.covered0*100).toFixed(0) : 0) + '% · rel diff: +' + (d.incGuest/d.industryTotal*100).toFixed(0) + '%', lift:true },
+    { label:'Unlock DR for Guest', value:'+' + d.fmtM(d.incGuest), sub:sub(d.incGuest), lift:true },
+    { label:'Increase Location', value:'+' + d.fmtM(d.incLoc), sub:sub(d.incLoc), lift:true },
+    { label:'AutoTrainSwap', value:'+' + d.fmtM(d.incSwap), sub:sub(d.incSwap), lift:true },
     { label:'Exit', value:d.fmtM(d.covered3), sub:'+' + (d.covered0 ? ((d.covered3-d.covered0)/d.covered0*100).toFixed(0) : 0) + '% reach', lift:false },
   ];
   const boxW = 2.36, boxGap = 0.12, boxY = 1.5, boxH = 1.05;
@@ -993,9 +1003,9 @@ function buildPptx(){
   const chartBottom = chartY + chartH;
   const bars = [
     { label:'Baseline', bottom:0, height:d.covered0, text:d.fmtM(d.covered0), full:true },
-    { label:'Increase Location', bottom:d.covered0, height:d.incLocation, text:'+' + d.fmtM(d.incLocation), full:false },
-    { label:'AutoFMT', bottom:covered1, height:d.incAutoFMT, text:'+' + d.fmtM(d.incAutoFMT), full:false },
-    { label:'Unlock DR for Guest', bottom:covered2, height:d.incGuest, text:'+' + d.fmtM(d.incGuest), full:false },
+    { label:'Unlock DR for Guest', bottom:d.covered0, height:d.incGuest, text:'+' + d.fmtM(d.incGuest), full:false },
+    { label:'Increase Location', bottom:covered1, height:d.incLoc, text:'+' + d.fmtM(d.incLoc), full:false },
+    { label:'AutoTrainSwap', bottom:covered2, height:d.incSwap, text:'+' + d.fmtM(d.incSwap), full:false },
     { label:'Exit', bottom:0, height:d.covered3, text:d.fmtM(d.covered3), full:true },
   ];
   const colW = chartW / bars.length;
@@ -1026,7 +1036,7 @@ function buildPptx(){
     { text:'Source: ', options:{ color:MUTED, fontSize:9, fontFace:'Courier New' } },
     { text:'Product Mart Dashboard', options:{ color:'4B4A9E', fontSize:9, underline:true, fontFace:'Courier New',
       hyperlink:{ url:'https://prod-uk-a.online.tableau.com/#/site/bicloud/views/ProductDashboard/ProductWorkspace?:iid=1' } } },
-    { text:' — Delay Repay Compensation, 01/01/2026 – 28/06/2026.', options:{ color:MUTED, fontSize:9, fontFace:'Courier New' } },
+    { text:' — Delay Repay Compensation, 01/01/2026 – 28/06/2026. Cumulative view: Guest first, Location and AutoTrainSwap on top.', options:{ color:MUTED, fontSize:9, fontFace:'Courier New' } },
   ], { x:0.4, y:7.05, w:12.5, h:0.3 });
 
   pptx.writeFile({ fileName:'delay-repay-coverage-waterfall.pptx' });
